@@ -1,0 +1,29 @@
+{
+  "name": "harness-designer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Web-basierter Kabelbaum-Designer mit Schaltplan, Layout, Bibliothek und Exporten",
+  "scripts": {
+    "dev": "concurrently -k -n server,client \"node --watch server/index.js\" \"vite\"",
+    "build": "vite build",
+    "start": "node server/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^4.22.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "concurrently": "^10.0.5",
+    "exceljs": "^4.4.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4",
+    "vite": "^8.3.1",
+    "zustand": "^5.0.15"
+  }
+}

@@ -1,0 +1,20 @@
+services:
+  harness-designer:
+    build: .
+    image: harness-designer:latest
+    container_name: harness-designer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # true setzen, sobald die Oberfläche nur noch per HTTPS (z. B. über einen Reverse Proxy) erreichbar ist
+      COOKIE_SECURE: "false"
+      # hinter einem Reverse Proxy: Anzahl der Proxy-Stufen, meist 1 (für korrekte Client-IP bei der Login-Drosselung)
+      TRUST_PROXY: ""
+      # Gültigkeit einer Anmeldung in Tagen
+      SESSION_DAYS: "30"
+    volumes:
+      - harness-data:/data
+
+volumes:
+  harness-data:

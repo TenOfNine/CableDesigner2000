@@ -1,0 +1,1917 @@
+{
+ "format": "harness-designer",
+ "formatVersion": 1,
+ "name": "Beispiel – Einspritzung & Zündung",
+ "description": "Beispiel-Kabelbaum mit Schottstecker, zwei ECUs, Armaturenbrett und Spleißen.",
+ "data": {
+  "schemaVersion": 1,
+  "settings": {
+   "drawingNumber": "KB-001",
+   "revision": "A",
+   "author": "",
+   "extraPerEnd": 15,
+   "extraPercent": 2,
+   "defaultCrossSection": 0.75,
+   "defaultWireType": "FLRY-B",
+   "defaultColor": "BK"
+  },
+  "components": [
+   {
+    "id": "cex1",
+    "type": "connector",
+    "label": "Injector 1",
+    "part": {
+     "id": null,
+     "category": "connector",
+     "partNumber": "DT04-2P",
+     "manufacturer": "TE Connectivity DEUTSCH",
+     "description": "DEUTSCH DT, 2-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+     "hasImage": false,
+     "imageVersion": "",
+     "data": {
+      "series": "DEUTSCH DT",
+      "cavities": 2,
+      "designation": "numeric",
+      "rows": 1,
+      "numbering": "serpentine",
+      "gender": "male",
+      "color": {
+       "name": "Grau",
+       "hex": "#8a8f98"
+      },
+      "contactPart": "0460-202-16141",
+      "contactRange": "16–20 AWG",
+      "lockPart": "W2P",
+      "matingPart": "DT06-2S"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex2",
+      "name": "1",
+      "fn": "BAT +"
+     },
+     {
+      "id": "pex3",
+      "name": "2",
+      "fn": "INJ 1"
+     }
+    ],
+    "sch": {
+     "x": 0,
+     "y": 0
+    },
+    "lay": {
+     "x": -760,
+     "y": -330
+    },
+    "show": {
+     "table": true
+    },
+    "callouts": {
+     "table": {
+      "dx": -169,
+      "dy": -150
+     }
+    },
+    "excludeFromBom": false,
+    "notes": "",
+    "mateId": null
+   },
+   {
+    "id": "cex4",
+    "type": "connector",
+    "label": "Coil 1",
+    "part": {
+     "id": null,
+     "category": "connector",
+     "partNumber": "DT04-3P",
+     "manufacturer": "TE Connectivity DEUTSCH",
+     "description": "DEUTSCH DT, 3-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+     "hasImage": false,
+     "imageVersion": "",
+     "data": {
+      "series": "DEUTSCH DT",
+      "cavities": 3,
+      "designation": "numeric",
+      "rows": 1,
+      "numbering": "serpentine",
+      "gender": "male",
+      "color": {
+       "name": "Grau",
+       "hex": "#8a8f98"
+      },
+      "contactPart": "0460-202-16141",
+      "contactRange": "16–20 AWG",
+      "lockPart": "W3P",
+      "matingPart": "DT06-3S"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex5",
+      "name": "1",
+      "fn": "IGN 1"
+     },
+     {
+      "id": "pex6",
+      "name": "2",
+      "fn": "GND"
+     },
+     {
+      "id": "pex7",
+      "name": "3",
+      "fn": "BAT +"
+     }
+    ],
+    "sch": {
+     "x": 0,
+     "y": 110
+    },
+    "lay": {
+     "x": -340,
+     "y": -330
+    },
+    "show": {
+     "table": true
+    },
+    "callouts": {
+     "table": {
+      "dx": -169,
+      "dy": -150
+     }
+    },
+    "excludeFromBom": false,
+    "notes": "",
+    "mateId": null
+   },
+   {
+    "id": "cex8",
+    "type": "connector",
+    "label": "Injector 2",
+    "part": {
+     "id": null,
+     "category": "connector",
+     "partNumber": "DT04-2P",
+     "manufacturer": "TE Connectivity DEUTSCH",
+     "description": "DEUTSCH DT, 2-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+     "hasImage": false,
+     "imageVersion": "",
+     "data": {
+      "series": "DEUTSCH DT",
+      "cavities": 2,
+      "designation": "numeric",
+      "rows": 1,
+      "numbering": "serpentine",
+      "gender": "male",
+      "color": {
+       "name": "Grau",
+       "hex": "#8a8f98"
+      },
+      "contactPart": "0460-202-16141",
+      "contactRange": "16–20 AWG",
+      "lockPart": "W2P",
+      "matingPart": "DT06-2S"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex9",
+      "name": "1",
+      "fn": "BAT +"
+     },
+     {
+      "id": "pex10",
+      "name": "2",
+      "fn": "INJ 2"
+     }
+    ],
+    "sch": {
+     "x": 0,
+     "y": 240
+    },
+    "lay": {
+     "x": 340,
+     "y": -330
+    },
+    "show": {
+     "table": true
+    },
+    "callouts": {
+     "table": {
+      "dx": -169,
+      "dy": -150
+     }
+    },
+    "excludeFromBom": false,
+    "notes": "",
+    "mateId": null
+   },
+   {
+    "id": "cex11",
+    "type": "connector",
+    "label": "Coil 2",
+    "part": {
+     "id": null,
+     "category": "connector",
+     "partNumber": "DT04-3P",
+     "manufacturer": "TE Connectivity DEUTSCH",
+     "description": "DEUTSCH DT, 3-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+     "hasImage": false,
+     "imageVersion": "",
+     "data": {
+      "series": "DEUTSCH DT",
+      "cavities": 3,
+      "designation": "numeric",
+      "rows": 1,
+      "numbering": "serpentine",
+      "gender": "male",
+      "color": {
+       "name": "Grau",
+       "hex": "#8a8f98"
+      },
+      "contactPart": "0460-202-16141",
+      "contactRange": "16–20 AWG",
+      "lockPart": "W3P",
+      "matingPart": "DT06-3S"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex12",
+      "name": "1",
+      "fn": "IGN 2"
+     },
+     {
+      "id": "pex13",
+      "name": "2",
+      "fn": "GND"
+     },
+     {
+      "id": "pex14",
+      "name": "3",
+      "fn": "BAT +"
+     }
+    ],
+    "sch": {
+     "x": 0,
+     "y": 350
+    },
+    "lay": {
+     "x": 760,
+     "y": -330
+    },
+    "show": {
+     "table": true
+    },
+    "callouts": {
+     "table": {
+      "dx": -169,
+      "dy": -150
+     }
+    },
+    "excludeFromBom": false,
+    "notes": "",
+    "mateId": null
+   },
+   {
+    "id": "cex15",
+    "type": "terminal",
+    "label": "GND Motor",
+    "part": {
+     "id": null,
+     "category": "terminal",
+     "partNumber": "",
+     "manufacturer": "",
+     "hasImage": false,
+     "imageVersion": "",
+     "description": "Ringkabelschuh isoliert M6, 0,5–1,5 mm² (rot)",
+     "data": {
+      "subtype": "ring",
+      "stud": "M6"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex16",
+      "name": "1",
+      "fn": "GND"
+     }
+    ],
+    "sch": {
+     "x": 0,
+     "y": 500
+    },
+    "lay": {
+     "x": -900,
+     "y": 0
+    },
+    "show": {},
+    "callouts": {},
+    "excludeFromBom": false,
+    "notes": "",
+    "subtype": "ring"
+   },
+   {
+    "id": "cex17",
+    "type": "splice",
+    "label": "S1",
+    "part": {
+     "id": null,
+     "category": "splice",
+     "partNumber": "",
+     "manufacturer": "",
+     "hasImage": false,
+     "imageVersion": "",
+     "description": "Stoßverbinder isoliert, 0,5–1,5 mm² (rot)",
+     "data": {}
+    },
+    "pins": [
+     {
+      "id": "pex18",
+      "name": "S",
+      "fn": "BAT +"
+     }
+    ],
+    "sch": {
+     "x": 330,
+     "y": 380
+    },
+    "lay": {
+     "x": 0,
+     "y": 80
+    },
+    "show": {},
+    "callouts": {},
+    "excludeFromBom": false,
+    "notes": ""
+   },
+   {
+    "id": "cex19",
+    "type": "connector",
+    "label": "Bulk Head E",
+    "part": {
+     "id": null,
+     "category": "connector",
+     "partNumber": "DT04-6P",
+     "manufacturer": "TE Connectivity DEUTSCH",
+     "description": "DEUTSCH DT, 6-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+     "hasImage": false,
+     "imageVersion": "",
+     "data": {
+      "series": "DEUTSCH DT",
+      "cavities": 6,
+      "designation": "numeric",
+      "rows": 2,
+      "numbering": "serpentine",
+      "gender": "male",
+      "color": {
+       "name": "Grau",
+       "hex": "#8a8f98"
+      },
+      "contactPart": "0460-202-16141",
+      "contactRange": "16–20 AWG",
+      "lockPart": "W6P",
+      "matingPart": "DT06-6S"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex20",
+      "name": "1",
+      "fn": "INJ 1"
+     },
+     {
+      "id": "pex21",
+      "name": "2",
+      "fn": "INJ 2"
+     },
+     {
+      "id": "pex22",
+      "name": "3",
+      "fn": "IGN 1"
+     },
+     {
+      "id": "pex23",
+      "name": "4",
+      "fn": "IGN 2"
+     },
+     {
+      "id": "pex24",
+      "name": "5",
+      "fn": "BAT +"
+     },
+     {
+      "id": "pex25",
+      "name": "6",
+      "fn": ""
+     }
+    ],
+    "sch": {
+     "x": 420,
+     "y": 60
+    },
+    "lay": {
+     "x": 0,
+     "y": 170
+    },
+    "show": {
+     "face": true
+    },
+    "callouts": {
+     "face": {
+      "dx": -140,
+      "dy": -36
+     }
+    },
+    "excludeFromBom": false,
+    "notes": "",
+    "mateId": "cex26"
+   },
+   {
+    "id": "cex26",
+    "type": "connector",
+    "label": "Bulk Head C",
+    "part": {
+     "id": null,
+     "category": "connector",
+     "partNumber": "DT06-6S",
+     "manufacturer": "TE Connectivity DEUTSCH",
+     "description": "DEUTSCH DT, 6-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+     "hasImage": false,
+     "imageVersion": "",
+     "data": {
+      "series": "DEUTSCH DT",
+      "cavities": 6,
+      "designation": "numeric",
+      "rows": 2,
+      "numbering": "serpentine",
+      "gender": "female",
+      "color": {
+       "name": "Grau",
+       "hex": "#8a8f98"
+      },
+      "contactPart": "0462-201-16141",
+      "contactRange": "16–20 AWG",
+      "lockPart": "W6S",
+      "matingPart": "DT04-6P"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex27",
+      "name": "1",
+      "fn": "INJ 1"
+     },
+     {
+      "id": "pex28",
+      "name": "2",
+      "fn": "INJ 2"
+     },
+     {
+      "id": "pex29",
+      "name": "3",
+      "fn": "IGN 1"
+     },
+     {
+      "id": "pex30",
+      "name": "4",
+      "fn": "IGN 2"
+     },
+     {
+      "id": "pex31",
+      "name": "5",
+      "fn": "BAT +"
+     },
+     {
+      "id": "pex32",
+      "name": "6",
+      "fn": ""
+     }
+    ],
+    "sch": {
+     "x": 720,
+     "y": 60
+    },
+    "lay": {
+     "x": 0,
+     "y": 290
+    },
+    "show": {
+     "face": true,
+     "table": true
+    },
+    "callouts": {
+     "face": {
+      "dx": -140,
+      "dy": -20
+     },
+     "table": {
+      "dx": 150,
+      "dy": 20
+     }
+    },
+    "excludeFromBom": false,
+    "notes": "",
+    "mateId": "cex19"
+   },
+   {
+    "id": "cex33",
+    "type": "connector",
+    "label": "ECU 2",
+    "part": {
+     "id": null,
+     "category": "connector",
+     "partNumber": "DT06-6S",
+     "manufacturer": "TE Connectivity DEUTSCH",
+     "description": "DEUTSCH DT, 6-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+     "hasImage": false,
+     "imageVersion": "",
+     "data": {
+      "series": "DEUTSCH DT",
+      "cavities": 6,
+      "designation": "numeric",
+      "rows": 2,
+      "numbering": "serpentine",
+      "gender": "female",
+      "color": {
+       "name": "Grau",
+       "hex": "#8a8f98"
+      },
+      "contactPart": "0462-201-16141",
+      "contactRange": "16–20 AWG",
+      "lockPart": "W6S",
+      "matingPart": "DT04-6P"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex34",
+      "name": "1",
+      "fn": "BAT +"
+     },
+     {
+      "id": "pex35",
+      "name": "2",
+      "fn": "INJ 1"
+     },
+     {
+      "id": "pex36",
+      "name": "3",
+      "fn": "INJ 2"
+     },
+     {
+      "id": "pex37",
+      "name": "4",
+      "fn": "IGN 1"
+     },
+     {
+      "id": "pex38",
+      "name": "5",
+      "fn": "IGN 2"
+     },
+     {
+      "id": "pex39",
+      "name": "6",
+      "fn": "GND"
+     }
+    ],
+    "sch": {
+     "x": 1060,
+     "y": 0
+    },
+    "lay": {
+     "x": -460,
+     "y": 560
+    },
+    "show": {
+     "face": true
+    },
+    "callouts": {
+     "face": {
+      "dx": -150,
+      "dy": -36
+     }
+    },
+    "excludeFromBom": false,
+    "notes": "",
+    "mateId": null
+   },
+   {
+    "id": "cex40",
+    "type": "connector",
+    "label": "ECU 1",
+    "part": {
+     "id": null,
+     "category": "connector",
+     "partNumber": "DT06-2S",
+     "manufacturer": "TE Connectivity DEUTSCH",
+     "description": "DEUTSCH DT, 2-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+     "hasImage": false,
+     "imageVersion": "",
+     "data": {
+      "series": "DEUTSCH DT",
+      "cavities": 2,
+      "designation": "numeric",
+      "rows": 1,
+      "numbering": "serpentine",
+      "gender": "female",
+      "color": {
+       "name": "Grau",
+       "hex": "#8a8f98"
+      },
+      "contactPart": "0462-201-16141",
+      "contactRange": "16–20 AWG",
+      "lockPart": "W2S",
+      "matingPart": "DT04-2P"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex41",
+      "name": "1",
+      "fn": "CAN H"
+     },
+     {
+      "id": "pex42",
+      "name": "2",
+      "fn": "CAN L"
+     }
+    ],
+    "sch": {
+     "x": 1060,
+     "y": 220
+    },
+    "lay": {
+     "x": -460,
+     "y": 720
+    },
+    "show": {},
+    "callouts": {},
+    "excludeFromBom": false,
+    "notes": "",
+    "mateId": null
+   },
+   {
+    "id": "cex43",
+    "type": "connector",
+    "label": "Dashboard",
+    "part": {
+     "id": null,
+     "category": "connector",
+     "partNumber": "DT06-4S",
+     "manufacturer": "TE Connectivity DEUTSCH",
+     "description": "DEUTSCH DT, 4-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+     "hasImage": false,
+     "imageVersion": "",
+     "data": {
+      "series": "DEUTSCH DT",
+      "cavities": 4,
+      "designation": "numeric",
+      "rows": 2,
+      "numbering": "serpentine",
+      "gender": "female",
+      "color": {
+       "name": "Grau",
+       "hex": "#8a8f98"
+      },
+      "contactPart": "0462-201-16141",
+      "contactRange": "16–20 AWG",
+      "lockPart": "W4S",
+      "matingPart": "DT04-4P"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex44",
+      "name": "1",
+      "fn": "BAT +"
+     },
+     {
+      "id": "pex45",
+      "name": "2",
+      "fn": "CAN H"
+     },
+     {
+      "id": "pex46",
+      "name": "3",
+      "fn": "CAN L"
+     },
+     {
+      "id": "pex47",
+      "name": "4",
+      "fn": "GND"
+     }
+    ],
+    "sch": {
+     "x": 1060,
+     "y": 340
+    },
+    "lay": {
+     "x": -460,
+     "y": 900
+    },
+    "show": {
+     "face": true
+    },
+    "callouts": {
+     "face": {
+      "dx": -150,
+      "dy": -36
+     }
+    },
+    "excludeFromBom": false,
+    "notes": "",
+    "mateId": null
+   },
+   {
+    "id": "cex48",
+    "type": "splice",
+    "label": "S2",
+    "part": {
+     "id": null,
+     "category": "splice",
+     "partNumber": "",
+     "manufacturer": "",
+     "hasImage": false,
+     "imageVersion": "",
+     "description": "Stoßverbinder isoliert, 0,5–1,5 mm² (rot)",
+     "data": {}
+    },
+    "pins": [
+     {
+      "id": "pex49",
+      "name": "S",
+      "fn": "BAT +"
+     }
+    ],
+    "sch": {
+     "x": 930,
+     "y": 520
+    },
+    "lay": {
+     "x": 0,
+     "y": 1000
+    },
+    "show": {},
+    "callouts": {},
+    "excludeFromBom": false,
+    "notes": ""
+   },
+   {
+    "id": "cex50",
+    "type": "splice",
+    "label": "S3",
+    "part": {
+     "id": null,
+     "category": "splice",
+     "partNumber": "",
+     "manufacturer": "",
+     "hasImage": false,
+     "imageVersion": "",
+     "description": "Stoßverbinder isoliert, 0,5–1,5 mm² (rot)",
+     "data": {}
+    },
+    "pins": [
+     {
+      "id": "pex51",
+      "name": "S",
+      "fn": "GND"
+     }
+    ],
+    "sch": {
+     "x": 930,
+     "y": 600
+    },
+    "lay": {
+     "x": 0,
+     "y": 1060
+    },
+    "show": {},
+    "callouts": {},
+    "excludeFromBom": false,
+    "notes": ""
+   },
+   {
+    "id": "cex52",
+    "type": "terminal",
+    "label": "BAT +",
+    "part": {
+     "id": null,
+     "category": "terminal",
+     "partNumber": "",
+     "manufacturer": "",
+     "hasImage": false,
+     "imageVersion": "",
+     "description": "Ringkabelschuh isoliert M6, 0,5–1,5 mm² (rot)",
+     "data": {
+      "subtype": "ring",
+      "stud": "M6"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex53",
+      "name": "1",
+      "fn": "BAT +"
+     }
+    ],
+    "sch": {
+     "x": 1100,
+     "y": 500
+    },
+    "lay": {
+     "x": -130,
+     "y": 1240
+    },
+    "show": {},
+    "callouts": {},
+    "excludeFromBom": false,
+    "notes": "",
+    "subtype": "ring"
+   },
+   {
+    "id": "cex54",
+    "type": "terminal",
+    "label": "BAT -",
+    "part": {
+     "id": null,
+     "category": "terminal",
+     "partNumber": "",
+     "manufacturer": "",
+     "hasImage": false,
+     "imageVersion": "",
+     "description": "Ringkabelschuh isoliert M6, 0,5–1,5 mm² (rot)",
+     "data": {
+      "subtype": "ring",
+      "stud": "M6"
+     }
+    },
+    "pins": [
+     {
+      "id": "pex55",
+      "name": "1",
+      "fn": "GND"
+     }
+    ],
+    "sch": {
+     "x": 1100,
+     "y": 580
+    },
+    "lay": {
+     "x": 130,
+     "y": 1240
+    },
+    "show": {},
+    "callouts": {},
+    "excludeFromBom": false,
+    "notes": "",
+    "subtype": "ring"
+   }
+  ],
+  "wires": [
+   {
+    "id": "wex56",
+    "label": "W1",
+    "from": {
+     "c": "cex1",
+     "p": "pex2"
+    },
+    "to": {
+     "c": "cex17",
+     "p": "pex18"
+    },
+    "signal": "BAT +",
+    "color": "RD",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex57",
+    "label": "W2",
+    "from": {
+     "c": "cex1",
+     "p": "pex3"
+    },
+    "to": {
+     "c": "cex19",
+     "p": "pex20"
+    },
+    "signal": "INJ 1",
+    "color": "OG",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex58",
+    "label": "W3",
+    "from": {
+     "c": "cex4",
+     "p": "pex5"
+    },
+    "to": {
+     "c": "cex19",
+     "p": "pex22"
+    },
+    "signal": "IGN 1",
+    "color": "GN",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex59",
+    "label": "W4",
+    "from": {
+     "c": "cex4",
+     "p": "pex6"
+    },
+    "to": {
+     "c": "cex15",
+     "p": "pex16"
+    },
+    "signal": "GND",
+    "color": "BK",
+    "stripe": null,
+    "cs": 1.0,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex60",
+    "label": "W5",
+    "from": {
+     "c": "cex4",
+     "p": "pex7"
+    },
+    "to": {
+     "c": "cex17",
+     "p": "pex18"
+    },
+    "signal": "BAT +",
+    "color": "RD",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex61",
+    "label": "W6",
+    "from": {
+     "c": "cex8",
+     "p": "pex9"
+    },
+    "to": {
+     "c": "cex17",
+     "p": "pex18"
+    },
+    "signal": "BAT +",
+    "color": "RD",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex62",
+    "label": "W7",
+    "from": {
+     "c": "cex8",
+     "p": "pex10"
+    },
+    "to": {
+     "c": "cex19",
+     "p": "pex21"
+    },
+    "signal": "INJ 2",
+    "color": "YE",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex63",
+    "label": "W8",
+    "from": {
+     "c": "cex11",
+     "p": "pex12"
+    },
+    "to": {
+     "c": "cex19",
+     "p": "pex23"
+    },
+    "signal": "IGN 2",
+    "color": "BU",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex64",
+    "label": "W9",
+    "from": {
+     "c": "cex11",
+     "p": "pex13"
+    },
+    "to": {
+     "c": "cex15",
+     "p": "pex16"
+    },
+    "signal": "GND",
+    "color": "BK",
+    "stripe": null,
+    "cs": 1.0,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex65",
+    "label": "W10",
+    "from": {
+     "c": "cex11",
+     "p": "pex14"
+    },
+    "to": {
+     "c": "cex17",
+     "p": "pex18"
+    },
+    "signal": "BAT +",
+    "color": "RD",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex66",
+    "label": "W11",
+    "from": {
+     "c": "cex17",
+     "p": "pex18"
+    },
+    "to": {
+     "c": "cex19",
+     "p": "pex24"
+    },
+    "signal": "BAT +",
+    "color": "RD",
+    "stripe": null,
+    "cs": 1.5,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex67",
+    "label": "W12",
+    "from": {
+     "c": "cex26",
+     "p": "pex27"
+    },
+    "to": {
+     "c": "cex33",
+     "p": "pex35"
+    },
+    "signal": "INJ 1",
+    "color": "OG",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex68",
+    "label": "W13",
+    "from": {
+     "c": "cex26",
+     "p": "pex28"
+    },
+    "to": {
+     "c": "cex33",
+     "p": "pex36"
+    },
+    "signal": "INJ 2",
+    "color": "YE",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex69",
+    "label": "W14",
+    "from": {
+     "c": "cex26",
+     "p": "pex29"
+    },
+    "to": {
+     "c": "cex33",
+     "p": "pex37"
+    },
+    "signal": "IGN 1",
+    "color": "GN",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex70",
+    "label": "W15",
+    "from": {
+     "c": "cex26",
+     "p": "pex30"
+    },
+    "to": {
+     "c": "cex33",
+     "p": "pex38"
+    },
+    "signal": "IGN 2",
+    "color": "BU",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex71",
+    "label": "W16",
+    "from": {
+     "c": "cex26",
+     "p": "pex31"
+    },
+    "to": {
+     "c": "cex48",
+     "p": "pex49"
+    },
+    "signal": "BAT +",
+    "color": "RD",
+    "stripe": null,
+    "cs": 1.5,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex72",
+    "label": "W17",
+    "from": {
+     "c": "cex33",
+     "p": "pex34"
+    },
+    "to": {
+     "c": "cex48",
+     "p": "pex49"
+    },
+    "signal": "BAT +",
+    "color": "RD",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex73",
+    "label": "W18",
+    "from": {
+     "c": "cex33",
+     "p": "pex39"
+    },
+    "to": {
+     "c": "cex50",
+     "p": "pex51"
+    },
+    "signal": "GND",
+    "color": "BK",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex74",
+    "label": "W19",
+    "from": {
+     "c": "cex40",
+     "p": "pex41"
+    },
+    "to": {
+     "c": "cex43",
+     "p": "pex45"
+    },
+    "signal": "CAN H",
+    "color": "VT",
+    "stripe": null,
+    "cs": 0.5,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex75",
+    "label": "W20",
+    "from": {
+     "c": "cex40",
+     "p": "pex42"
+    },
+    "to": {
+     "c": "cex43",
+     "p": "pex46"
+    },
+    "signal": "CAN L",
+    "color": "WH",
+    "stripe": "VT",
+    "cs": 0.5,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex76",
+    "label": "W21",
+    "from": {
+     "c": "cex43",
+     "p": "pex44"
+    },
+    "to": {
+     "c": "cex48",
+     "p": "pex49"
+    },
+    "signal": "BAT +",
+    "color": "RD",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex77",
+    "label": "W22",
+    "from": {
+     "c": "cex43",
+     "p": "pex47"
+    },
+    "to": {
+     "c": "cex50",
+     "p": "pex51"
+    },
+    "signal": "GND",
+    "color": "BK",
+    "stripe": null,
+    "cs": 0.75,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex78",
+    "label": "W23",
+    "from": {
+     "c": "cex48",
+     "p": "pex49"
+    },
+    "to": {
+     "c": "cex52",
+     "p": "pex53"
+    },
+    "signal": "BAT +",
+    "color": "RD",
+    "stripe": null,
+    "cs": 1.5,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   },
+   {
+    "id": "wex79",
+    "label": "W24",
+    "from": {
+     "c": "cex50",
+     "p": "pex51"
+    },
+    "to": {
+     "c": "cex54",
+     "p": "pex55"
+    },
+    "signal": "GND",
+    "color": "BK",
+    "stripe": null,
+    "cs": 1.5,
+    "type": "FLRY-B",
+    "part": null,
+    "lengthExtra": 0,
+    "lengthOverride": null,
+    "notes": ""
+   }
+  ],
+  "nodes": [
+   {
+    "id": "nex80",
+    "x": -550,
+    "y": -180,
+    "label": "A1"
+   },
+   {
+    "id": "nex81",
+    "x": 550,
+    "y": -180,
+    "label": "A2"
+   },
+   {
+    "id": "nex82",
+    "x": -550,
+    "y": 0,
+    "label": "A3"
+   },
+   {
+    "id": "nex83",
+    "x": 550,
+    "y": 0,
+    "label": "A4"
+   },
+   {
+    "id": "nex84",
+    "x": 0,
+    "y": 0,
+    "label": "A5"
+   },
+   {
+    "id": "nex85",
+    "x": 0,
+    "y": 560,
+    "label": "A6"
+   },
+   {
+    "id": "nex86",
+    "x": -240,
+    "y": 640,
+    "label": "A7"
+   },
+   {
+    "id": "nex87",
+    "x": 0,
+    "y": 900,
+    "label": "A8"
+   },
+   {
+    "id": "nex88",
+    "x": 0,
+    "y": 1140,
+    "label": "A9"
+   }
+  ],
+  "segments": [
+   {
+    "id": "sex89",
+    "a": "cex1",
+    "b": "nex80",
+    "length": 200,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex90",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Gewebeklebeband PET, 19 mm breit",
+       "data": {
+        "subtype": "tape"
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex91",
+    "a": "cex4",
+    "b": "nex80",
+    "length": 200,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex92",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Gewebeklebeband PET, 19 mm breit",
+       "data": {
+        "subtype": "tape"
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex93",
+    "a": "cex8",
+    "b": "nex81",
+    "length": 200,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex94",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Gewebeklebeband PET, 19 mm breit",
+       "data": {
+        "subtype": "tape"
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex95",
+    "a": "cex11",
+    "b": "nex81",
+    "length": 200,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex96",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Gewebeklebeband PET, 19 mm breit",
+       "data": {
+        "subtype": "tape"
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex97",
+    "a": "nex80",
+    "b": "nex82",
+    "length": 300,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex98",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Wellrohr PA, geschlitzt, NW 10",
+       "data": {
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex99",
+    "a": "nex81",
+    "b": "nex83",
+    "length": 300,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex100",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Wellrohr PA, geschlitzt, NW 10",
+       "data": {
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex101",
+    "a": "cex15",
+    "b": "nex82",
+    "length": 300,
+    "points": [],
+    "coverings": [],
+    "label": ""
+   },
+   {
+    "id": "sex102",
+    "a": "nex82",
+    "b": "nex84",
+    "length": 700,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex103",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Wellrohr PA, geschlitzt, NW 10",
+       "data": {
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex104",
+    "a": "nex83",
+    "b": "nex84",
+    "length": 700,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex105",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Wellrohr PA, geschlitzt, NW 10",
+       "data": {
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex106",
+    "a": "nex84",
+    "b": "cex17",
+    "length": 150,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex107",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Wellrohr PA, geschlitzt, NW 10",
+       "data": {
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex108",
+    "a": "cex17",
+    "b": "cex19",
+    "length": 150,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex109",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Wellrohr PA, geschlitzt, NW 10",
+       "data": {
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex110",
+    "a": "cex26",
+    "b": "nex85",
+    "length": 500,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex111",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Wellrohr PA, geschlitzt, NW 10",
+       "data": {
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex112",
+    "a": "nex85",
+    "b": "nex86",
+    "length": 600,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex113",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Wellrohr PA, geschlitzt, NW 10",
+       "data": {
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex114",
+    "a": "nex86",
+    "b": "cex33",
+    "length": 100,
+    "points": [],
+    "coverings": [],
+    "label": ""
+   },
+   {
+    "id": "sex115",
+    "a": "nex86",
+    "b": "cex40",
+    "length": 100,
+    "points": [],
+    "coverings": [],
+    "label": ""
+   },
+   {
+    "id": "sex116",
+    "a": "nex85",
+    "b": "nex87",
+    "length": 400,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex117",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Wellrohr PA, geschlitzt, NW 10",
+       "data": {
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex118",
+    "a": "nex87",
+    "b": "cex43",
+    "length": 800,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex119",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Wellrohr PA, geschlitzt, NW 10",
+       "data": {
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex120",
+    "a": "nex87",
+    "b": "cex48",
+    "length": 400,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex121",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "hasImage": false,
+       "imageVersion": "",
+       "description": "Wellrohr PA, geschlitzt, NW 10",
+       "data": {
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex122",
+    "a": "cex48",
+    "b": "cex50",
+    "length": 50,
+    "points": [],
+    "coverings": [],
+    "label": ""
+   },
+   {
+    "id": "sex123",
+    "a": "cex50",
+    "b": "nex88",
+    "length": 150,
+    "points": [],
+    "coverings": [],
+    "label": ""
+   },
+   {
+    "id": "sex124",
+    "a": "nex88",
+    "b": "cex52",
+    "length": 200,
+    "points": [],
+    "coverings": [],
+    "label": ""
+   },
+   {
+    "id": "sex125",
+    "a": "nex88",
+    "b": "cex54",
+    "length": 200,
+    "points": [],
+    "coverings": [],
+    "label": ""
+   }
+  ],
+  "notes": [
+   {
+    "id": "nex126",
+    "view": "sch",
+    "x": 0,
+    "y": -110,
+    "text": "Beispiel: Einspritzung & Zündung\nMotorseite links, Fahrzeugseite rechts (über Schottstecker E/C)"
+   },
+   {
+    "id": "nex127",
+    "view": "lay",
+    "x": 260,
+    "y": 1120,
+    "text": "Batterieanschluss\nRingkabelschuhe M6"
+   }
+  ]
+ }
+}

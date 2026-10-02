@@ -69,7 +69,7 @@ Newest entries are appended per version. Conversation with PH (the owner) is in 
 
 ---
 
-## v0.2 – CableDesigner2000 (branch `feature/v0.2`)
+## v0.2 – CableDesigner2000 (developed on `feature/v0.2`, merged into `main` on 2026-10-02 at PH's request)
 
 ### Request (PH)
 

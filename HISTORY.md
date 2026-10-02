@@ -257,3 +257,7 @@ number, description "Generic: …", note to set the cavity count).
 - 2026-10-02: README screenshots added in `docs/screenshots/` (schematic, layout, library). They were taken with
   Playwright at 1440 × 860 in the English UI, using the example harness (`examples/…`) in a project
   "Motorcycle › Engine". Retake them when the UI changes noticeably. `docs/` is excluded from the Docker image.
+- 2026-10-02: New app icon chosen by PH from six concepts: **"B – mating face"**, a connector housing with four
+  cavities in the wire colours red/orange/green/blue on a dark tile (best legibility at 16 px). It replaces the
+  former four diagonal wire stripes in `client/public/favicon.svg`, which is also used as the logo in the header,
+  editor and login page. README screenshots were retaken with the new icon.

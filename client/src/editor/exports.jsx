@@ -3,9 +3,10 @@ import SchematicScene, { schematicBounds } from './SchematicScene.jsx';
 import LayoutScene, { layoutBounds } from './LayoutScene.jsx';
 import { DARK, LIGHT } from './theme.js';
 import { downloadBlob, fetchAsDataUrl, partImageUrl, safeFilename } from '../api.js';
-import { wireListRows, pinoutRows, segmentRows, bomRows } from './tables.js';
+import { wireListRows, pinoutRows, segmentRows, bomRows, cableRows } from './tables.js';
+import { t, locale } from '../i18n/index.js';
 
-// Teilebilder für Export/Druck als Data-URLs laden
+// Loads part images as data URLs for exports and printing
 export async function loadImages(doc) {
   const out = {};
   const parts = new Map();
@@ -20,7 +21,7 @@ export async function loadImages(doc) {
 }
 
 export function sceneBounds(view, doc, derived, pad = 30) {
-  const b = view === 'schematic' ? schematicBounds(doc) : layoutBounds(doc, derived);
+  const b = view === 'schematic' ? schematicBounds(doc, derived) : layoutBounds(doc, derived);
   return { x: b.x - pad, y: b.y - pad, w: b.w + pad * 2, h: b.h + pad * 2 };
 }
 
@@ -71,7 +72,7 @@ export async function exportPng(opts, filename, scale = 2) {
     const img = await new Promise((resolve, reject) => {
       const i = new Image();
       i.onload = () => resolve(i);
-      i.onerror = () => reject(new Error('Bild konnte nicht erzeugt werden.'));
+      i.onerror = () => reject(new Error(t('The image could not be created.')));
       i.src = url;
     });
     const canvas = document.createElement('canvas');
@@ -81,7 +82,7 @@ export async function exportPng(opts, filename, scale = 2) {
     ctx.scale(s, s);
     ctx.drawImage(img, 0, 0, width, height);
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-    if (!blob) throw new Error('PNG konnte nicht erzeugt werden (Zeichnung zu groß?).');
+    if (!blob) throw new Error(t('The PNG could not be created (drawing too large?).'));
     downloadBlob(blob, `${safeFilename(filename)}.png`);
   } finally {
     URL.revokeObjectURL(url);
@@ -104,11 +105,11 @@ export async function exportExcel({ doc, derived, meta, author }) {
   const mod = await import('exceljs');
   const ExcelJS = mod.default || mod;
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'Harness Designer';
+  wb.creator = 'CableDesigner2000';
   wb.created = new Date();
 
   const addSheet = (name, columns, rows, decorate) => {
-    const ws = wb.addWorksheet(name, { views: [{ state: 'frozen', ySplit: 1 }] });
+    const ws = wb.addWorksheet(name.slice(0, 31), { views: [{ state: 'frozen', ySplit: 1 }] });
     ws.columns = columns.map((c) => ({ header: c.header, key: c.key, width: c.width || 14, style: c.style }));
     const head = ws.getRow(1);
     head.font = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -122,105 +123,119 @@ export async function exportExcel({ doc, derived, meta, author }) {
     ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: columns.length } };
     return ws;
   };
+  const colorCell = (row, key, hex) => {
+    if (!hex) return;
+    const cell = row.getCell(key);
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: argb(hex) } };
+    cell.font = { color: { argb: contrast(hex) }, bold: true };
+  };
 
-  const wires = wireListRows(doc, derived);
   addSheet(
-    'Leitungsliste',
+    t('Wire list'),
     [
-      { header: 'Nr.', key: 'label', width: 8 },
-      { header: 'Signal', key: 'signal', width: 16 },
-      { header: 'Von', key: 'fromComp', width: 16 },
-      { header: 'Pin', key: 'fromPin', width: 8 },
-      { header: 'Nach', key: 'toComp', width: 16 },
-      { header: 'Pin', key: 'toPin', width: 8 },
-      { header: 'Farbe', key: 'color', width: 9 },
-      { header: 'Farbe (Name)', key: 'colorName', width: 14 },
-      { header: 'Querschnitt mm²', key: 'cs', width: 15, style: { numFmt: '0.00' } },
+      { header: t('No.'), key: 'label', width: 8 },
+      { header: t('Signal'), key: 'signal', width: 16 },
+      { header: t('From'), key: 'fromComp', width: 16 },
+      { header: t('Pin'), key: 'fromPin', width: 8 },
+      { header: t('To'), key: 'toComp', width: 16 },
+      { header: t('Pin'), key: 'toPin', width: 8 },
+      { header: t('Colour'), key: 'color', width: 9 },
+      { header: t('Colour (name)'), key: 'colorName', width: 14 },
+      { header: t('Cross-section mm²'), key: 'cs', width: 15, style: { numFmt: '0.00' } },
       { header: 'AWG ≈', key: 'awg', width: 8 },
-      { header: 'Typ', key: 'type', width: 10 },
-      { header: 'Teilenummer', key: 'partNumber', width: 14 },
-      { header: 'Länge mm', key: 'length', width: 11, style: { numFmt: '0' } },
-      { header: 'Verlauf', key: 'route', width: 40 },
-      { header: 'Bemerkung', key: 'notes', width: 24 },
+      { header: t('Type'), key: 'type', width: 10 },
+      { header: t('Cable'), key: 'cable', width: 9 },
+      { header: t('Part number'), key: 'partNumber', width: 14 },
+      { header: t('Length mm'), key: 'length', width: 11, style: { numFmt: '0' } },
+      { header: t('Route'), key: 'route', width: 40 },
+      { header: t('Remark'), key: 'notes', width: 24 },
     ],
-    wires,
-    (row, r) => {
-      const cell = row.getCell('color');
-      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: argb(r.colorHex) } };
-      cell.font = { color: { argb: contrast(r.colorHex) }, bold: true };
-    }
+    wireListRows(doc, derived),
+    (row, r) => colorCell(row, 'color', r.colorHex)
   );
 
-  addSheet(
-    'Stückliste',
-    [
-      { header: 'Pos.', key: 'pos', width: 6 },
-      { header: 'Gruppe', key: 'group', width: 16 },
-      { header: 'Teilenummer', key: 'partNumber', width: 18 },
-      { header: 'Hersteller', key: 'manufacturer', width: 22 },
-      { header: 'Beschreibung', key: 'description', width: 50 },
-      { header: 'Menge', key: 'qty', width: 10, style: { numFmt: '0.###' } },
-      { header: 'Einheit', key: 'unit', width: 8 },
-      { header: 'Verwendung', key: 'refs', width: 40 },
-      { header: 'Hinweis', key: 'notes', width: 16 },
-    ],
-    bomRows(derived)
-  );
+  const bomColumns = [
+    { header: t('Pos.'), key: 'pos', width: 6 },
+    { header: t('Group'), key: 'group', width: 18 },
+    { header: t('Part number'), key: 'partNumber', width: 18 },
+    { header: t('Manufacturer'), key: 'manufacturer', width: 22 },
+    { header: t('Description'), key: 'description', width: 50 },
+    { header: t('Qty'), key: 'qty', width: 10, style: { numFmt: '0.###' } },
+    { header: t('Unit'), key: 'unit', width: 8 },
+    { header: t('Used by'), key: 'refs', width: 40 },
+    { header: t('Note'), key: 'notes', width: 16 },
+  ];
+  addSheet(t('Bill of materials'), bomColumns, bomRows(derived, false));
+  if (derived.subs.size) addSheet(t('BOM (exploded)'), bomColumns, bomRows(derived, true));
 
   addSheet(
-    'Pinbelegung',
+    t('Pin assignment'),
     [
-      { header: 'Bauteil', key: 'comp', width: 16 },
-      { header: 'Art', key: 'type', width: 14 },
-      { header: 'Teilenummer', key: 'part', width: 16 },
-      { header: 'Gegenstück', key: 'mate', width: 14 },
-      { header: 'Pin', key: 'pin', width: 7 },
-      { header: 'Funktion', key: 'fn', width: 16 },
-      { header: 'Leitung', key: 'wire', width: 9 },
-      { header: 'Farbe', key: 'color', width: 9 },
-      { header: 'Querschnitt mm²', key: 'cs', width: 15, style: { numFmt: '0.00' } },
-      { header: 'Ziel', key: 'dest', width: 18 },
-      { header: 'Ziel-Funktion', key: 'destFn', width: 16 },
-      { header: 'Länge mm', key: 'length', width: 11, style: { numFmt: '0' } },
+      { header: t('Component'), key: 'comp', width: 16 },
+      { header: t('Kind'), key: 'type', width: 14 },
+      { header: t('Part number'), key: 'part', width: 16 },
+      { header: t('Mating part'), key: 'mate', width: 14 },
+      { header: t('Pin'), key: 'pin', width: 7 },
+      { header: t('Function'), key: 'fn', width: 16 },
+      { header: t('Wire'), key: 'wire', width: 9 },
+      { header: t('Colour'), key: 'color', width: 9 },
+      { header: t('Cross-section mm²'), key: 'cs', width: 15, style: { numFmt: '0.00' } },
+      { header: t('Destination'), key: 'dest', width: 18 },
+      { header: t('Destination function'), key: 'destFn', width: 16 },
+      { header: t('Length mm'), key: 'length', width: 11, style: { numFmt: '0' } },
     ],
     pinoutRows(doc, derived),
-    (row, r) => {
-      if (r.colorHex) {
-        const cell = row.getCell('color');
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: argb(r.colorHex) } };
-        cell.font = { color: { argb: contrast(r.colorHex) }, bold: true };
-      }
-    }
+    (row, r) => colorCell(row, 'color', r.colorHex)
   );
 
+  const cables = cableRows(doc, derived);
+  if (cables.length) {
+    addSheet(
+      t('Cables'),
+      [
+        { header: t('Designation'), key: 'label', width: 10 },
+        { header: t('Kind'), key: 'kind', width: 18 },
+        { header: t('Type'), key: 'type', width: 12 },
+        { header: t('Part number'), key: 'part', width: 16 },
+        { header: t('Cores'), key: 'cores', width: 8 },
+        { header: t('Shield'), key: 'shieldText', width: 8 },
+        { header: t('Wires'), key: 'members', width: 40 },
+        { header: t('Lay length mm'), key: 'layLength', width: 12 },
+        { header: t('Outer diameter mm'), key: 'outerDiameter', width: 14, style: { numFmt: '0.0' } },
+        { header: t('Length mm'), key: 'length', width: 11, style: { numFmt: '0' } },
+      ],
+      cables.map((r) => ({ ...r, shieldText: r.shield ? t('yes') : '' }))
+    );
+  }
+
   addSheet(
-    'Segmente',
+    t('Segments'),
     [
-      { header: 'Von', key: 'from', width: 16 },
-      { header: 'Nach', key: 'to', width: 16 },
-      { header: 'Bezeichnung', key: 'label', width: 14 },
-      { header: 'Länge mm', key: 'length', width: 11, style: { numFmt: '0.#' } },
-      { header: 'Anzahl Leitungen', key: 'wires', width: 16 },
-      { header: 'Bündel-Ø ≈ mm', key: 'bundle', width: 15, style: { numFmt: '0.0' } },
-      { header: 'Ummantelung', key: 'coverings', width: 30 },
-      { header: 'Leitungen', key: 'wireLabels', width: 40 },
+      { header: t('From'), key: 'from', width: 16 },
+      { header: t('To'), key: 'to', width: 16 },
+      { header: t('Designation'), key: 'label', width: 14 },
+      { header: t('Length mm'), key: 'length', width: 11, style: { numFmt: '0.#' } },
+      { header: t('Number of wires'), key: 'wires', width: 16 },
+      { header: t('Bundle Ø ≈ mm'), key: 'bundle', width: 15, style: { numFmt: '0.0' } },
+      { header: t('Covering'), key: 'coverings', width: 30 },
+      { header: t('Wires'), key: 'wireLabels', width: 40 },
     ],
     segmentRows(doc, derived)
   );
 
   const info = wb.addWorksheet('Info');
-  info.columns = [{ width: 26 }, { width: 60 }];
+  info.columns = [{ width: 32 }, { width: 70 }];
   const s = doc.settings;
   const lines = [
-    ['Kabelbaum', meta.name],
-    ['Projekt', (meta.breadcrumb || []).map((b) => b.name).join(' › ')],
-    ['Zeichnungsnummer', s.drawingNumber || ''],
-    ['Revision', s.revision || ''],
-    ['Bearbeiter', s.author || author || ''],
-    ['Exportiert am', new Date().toLocaleString('de-DE')],
-    ['Längenzugabe je Leitungsende (mm)', Number(s.extraPerEnd) || 0],
-    ['Längenzuschlag (%)', Number(s.extraPercent) || 0],
-    ['Hinweis', 'Längen = Weg im Layout × (1 + Zuschlag) + 2 × Zugabe je Ende + Zusatzlänge der Leitung'],
+    [t('Harness'), meta.name],
+    [t('Project'), (meta.breadcrumb || []).map((b) => b.name).join(' › ')],
+    [t('Drawing number'), s.drawingNumber || ''],
+    [t('Revision'), s.revision || ''],
+    [t('Author'), s.author || author || ''],
+    [t('Exported on'), new Date().toLocaleString(locale())],
+    [t('Length allowance per wire end (mm)'), Number(s.extraPerEnd) || 0],
+    [t('Length surcharge (%)'), Number(s.extraPercent) || 0],
+    [t('Note'), t('Length = path in layout × (1 + surcharge) × twist factor + 2 × allowance per end + extra length of the wire')],
   ];
   lines.forEach((l) => {
     const r = info.addRow(l);
@@ -228,8 +243,5 @@ export async function exportExcel({ doc, derived, meta, author }) {
   });
 
   const buf = await wb.xlsx.writeBuffer();
-  downloadBlob(
-    new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
-    `${safeFilename(meta.name)}.xlsx`
-  );
+  downloadBlob(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `${safeFilename(meta.name)}.xlsx`);
 }

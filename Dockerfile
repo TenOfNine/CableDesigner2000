@@ -1,6 +1,6 @@
 # ---------- Build ----------
 FROM node:22-bookworm AS build
-# better-sqlite3 wird kompiliert; die Node-Header liegen im Image bereits unter /usr/local
+# better-sqlite3 is compiled from source; the Node headers are already in the image under /usr/local
 ENV npm_config_nodedir=/usr/local
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -10,7 +10,7 @@ COPY client ./client
 COPY server ./server
 RUN npm run build && npm prune --omit=dev
 
-# ---------- Laufzeit ----------
+# ---------- Runtime ----------
 FROM node:22-bookworm-slim
 ENV NODE_ENV=production \
     PORT=8080 \

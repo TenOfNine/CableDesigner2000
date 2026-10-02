@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { Modal, useDialogs, fmtDate } from '../components/ui.jsx';
+import { t, LANGUAGES } from '../i18n/index.js';
 
 export default function Admin() {
   const { user } = useAuth();
@@ -31,21 +32,24 @@ export default function Admin() {
   };
 
   const resetPassword = async (u) => {
-    const pw = await dialogs.prompt(`Neues Passwort für „${u.username}“`, { label: 'Neues Passwort (mind. 8 Zeichen)', okLabel: 'Setzen' });
+    const pw = await dialogs.prompt(t('New password for "{name}"', { name: u.username }), {
+      label: t('New password (at least 8 characters)'),
+      okLabel: t('Set'),
+    });
     if (!pw) return;
     await patch(u, { password: pw });
   };
 
   const rename = async (u) => {
-    const dn = await dialogs.prompt('Anzeigename ändern', { label: 'Anzeigename', value: u.displayName, okLabel: 'Speichern' });
+    const dn = await dialogs.prompt(t('Change display name'), { label: t('Display name'), value: u.displayName, okLabel: t('Save') });
     if (!dn) return;
     await patch(u, { displayName: dn });
   };
 
   const remove = async (u) => {
     const ok = await dialogs.confirm(
-      `Benutzer „${u.username}“ löschen?\n\nDabei werden auch alle Projekte, Kabelbäume und eigenen Bibliotheksteile dieses Kontos endgültig gelöscht.`,
-      { okLabel: 'Endgültig löschen', danger: true }
+      t('Delete user "{name}"?\n\nThis also permanently deletes all projects, harnesses and own library parts of this account.', { name: u.username }),
+      { okLabel: t('Delete permanently'), danger: true }
     );
     if (!ok) return;
     setError('');
@@ -60,12 +64,12 @@ export default function Admin() {
     <div className="page">
       <div className="page-narrow col" style={{ gap: 14 }}>
         <div className="row">
-          <h1 className="grow">Verwaltung</h1>
+          <h1 className="grow">{t('Administration')}</h1>
           <a className="btn" href="/api/admin/backup" download>
-            ⇩ Datenbank-Backup
+            ⇩ {t('Database backup')}
           </a>
           <button className="primary" onClick={() => setCreating(true)}>
-            ＋ Benutzer anlegen
+            ＋ {t('Create user')}
           </button>
         </div>
         {error && <div className="error-box">{error}</div>}
@@ -73,12 +77,12 @@ export default function Admin() {
           <table className="table">
             <thead>
               <tr>
-                <th>Benutzername</th>
-                <th>Anzeigename</th>
-                <th>Rolle</th>
-                <th>Status</th>
-                <th className="num">Projekte</th>
-                <th>Letzte Anmeldung</th>
+                <th>{t('Username')}</th>
+                <th>{t('Display name')}</th>
+                <th>{t('Role')}</th>
+                <th>{t('Status')}</th>
+                <th className="num">{t('Projects')}</th>
+                <th>{t('Last sign-in')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -86,7 +90,7 @@ export default function Admin() {
               {!users && (
                 <tr>
                   <td colSpan={7} className="muted">
-                    Lade …
+                    {t('Loading …')}
                   </td>
                 </tr>
               )}
@@ -94,29 +98,29 @@ export default function Admin() {
                 <tr key={u.id}>
                   <td className="mono">{u.username}</td>
                   <td>{u.displayName}</td>
-                  <td>{u.isAdmin ? <span className="badge accent">Administrator</span> : <span className="badge">Benutzer</span>}</td>
-                  <td>{u.disabled ? <span className="badge warn">Deaktiviert</span> : <span className="badge ok">Aktiv</span>}</td>
+                  <td>{u.isAdmin ? <span className="badge accent">{t('Administrator')}</span> : <span className="badge">{t('User')}</span>}</td>
+                  <td>{u.disabled ? <span className="badge warn">{t('Disabled')}</span> : <span className="badge ok">{t('Active')}</span>}</td>
                   <td className="num">{u.projectCount}</td>
                   <td className="small muted">{u.lastLoginAt ? fmtDate(u.lastLoginAt) : '—'}</td>
                   <td className="nowrap">
                     <div className="row" style={{ gap: 4 }}>
                       <button className="small" onClick={() => rename(u)}>
-                        Name
+                        {t('Name')}
                       </button>
                       <button className="small" onClick={() => resetPassword(u)}>
-                        Passwort
+                        {t('Password')}
                       </button>
                       <button className="small" onClick={() => patch(u, { isAdmin: !u.isAdmin })}>
-                        {u.isAdmin ? 'Admin entziehen' : 'Zum Admin'}
+                        {u.isAdmin ? t('Revoke admin') : t('Make admin')}
                       </button>
                       {u.id !== user.id && (
                         <button className="small" onClick={() => patch(u, { disabled: !u.disabled })}>
-                          {u.disabled ? 'Aktivieren' : 'Deaktivieren'}
+                          {u.disabled ? t('Enable') : t('Disable')}
                         </button>
                       )}
                       {u.id !== user.id && (
                         <button className="small danger" onClick={() => remove(u)}>
-                          Löschen
+                          {t('Delete')}
                         </button>
                       )}
                     </div>
@@ -127,8 +131,7 @@ export default function Admin() {
           </table>
         </div>
         <p className="muted small">
-          Administratoren verwalten Konten und die globale Bibliothek. Auf Projekte anderer Benutzer haben auch Administratoren nur über
-          Freigaben Zugriff.
+          {t('Administrators manage accounts and the global library. Even administrators can only access other users’ projects through shares.')}
         </p>
       </div>
       {creating && (
@@ -145,7 +148,7 @@ export default function Admin() {
 }
 
 function CreateUser({ onClose, onCreated }) {
-  const [form, setForm] = useState({ username: '', displayName: '', password: '', isAdmin: false });
+  const [form, setForm] = useState({ username: '', displayName: '', password: '', isAdmin: false, language: 'de' });
   const [error, setError] = useState('');
   const submit = async () => {
     setError('');
@@ -157,35 +160,45 @@ function CreateUser({ onClose, onCreated }) {
   };
   return (
     <Modal
-      title="Benutzer anlegen"
+      title={t('Create user')}
       onClose={onClose}
       footer={
         <>
-          <button onClick={onClose}>Abbrechen</button>
+          <button onClick={onClose}>{t('Cancel')}</button>
           <button className="primary" onClick={submit} disabled={!form.username || !form.password}>
-            Anlegen
+            {t('Create')}
           </button>
         </>
       }
     >
       {error && <div className="error-box">{error}</div>}
       <label className="field">
-        Benutzername
+        {t('Username')}
         <input autoFocus value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} />
       </label>
       <label className="field">
-        Anzeigename
+        {t('Display name')}
         <input value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} />
       </label>
       <label className="field">
-        Startpasswort (mind. 8 Zeichen)
+        {t('Initial password (at least 8 characters)')}
         <input type="text" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete="off" />
+      </label>
+      <label className="field">
+        {t('Language')}
+        <select value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })}>
+          {LANGUAGES.map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.label}
+            </option>
+          ))}
+        </select>
       </label>
       <label className="check">
         <input type="checkbox" checked={form.isAdmin} onChange={(e) => setForm({ ...form, isAdmin: e.target.checked })} />
-        Administrator
+        {t('Administrator')}
       </label>
-      <p className="muted small">Der Benutzer kann sein Passwort nach der Anmeldung unter „Mein Konto“ ändern.</p>
+      <p className="muted small">{t('The user can change the password after signing in under "My account".')}</p>
     </Modal>
   );
 }

@@ -1,7 +1,7 @@
-// Serverseitige Minimalprüfung des Kabelbaum-Dokuments.
-// Die fachliche Logik (Routing, Längen, Listen) liegt im Client.
+// Minimal server-side validation of the harness document.
+// The domain logic (routing, lengths, lists) lives in the client.
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export function emptyHarness() {
   return {
@@ -18,21 +18,33 @@ export function emptyHarness() {
     },
     components: [],
     wires: [],
+    cables: [],
     nodes: [],
     segments: [],
     notes: [],
   };
 }
 
-const ARRAYS = ['components', 'wires', 'nodes', 'segments', 'notes'];
+const REQUIRED_ARRAYS = ['components', 'wires', 'nodes', 'segments', 'notes'];
 
+/** Returns null or an error { message, params } with an English message */
 export function validateHarnessData(data) {
-  if (!data || typeof data !== 'object' || Array.isArray(data)) return 'Ungültiges Dokument.';
-  if (typeof data.schemaVersion !== 'number') return 'Dokument ohne Schema-Version.';
-  if (data.schemaVersion > SCHEMA_VERSION) return 'Das Dokument stammt aus einer neueren Programmversion.';
-  for (const key of ARRAYS) {
-    if (!Array.isArray(data[key])) return `Dokument unvollständig: "${key}" fehlt.`;
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return { message: 'Invalid document.' };
+  if (typeof data.schemaVersion !== 'number') return { message: 'Document without schema version.' };
+  if (data.schemaVersion > SCHEMA_VERSION) return { message: 'The document was created by a newer program version.' };
+  for (const key of REQUIRED_ARRAYS) {
+    if (!Array.isArray(data[key])) return { message: 'Incomplete document: "{key}" is missing.', params: { key } };
   }
-  if (!data.settings || typeof data.settings !== 'object') return 'Dokument unvollständig: "settings" fehlt.';
+  if (data.cables !== undefined && !Array.isArray(data.cables)) return { message: 'Incomplete document: "{key}" is missing.', params: { key: 'cables' } };
+  if (!data.settings || typeof data.settings !== 'object') return { message: 'Incomplete document: "{key}" is missing.', params: { key: 'settings' } };
   return null;
+}
+
+/** Ids of harnesses embedded (linked) by this document */
+export function embeddedRefs(data) {
+  const out = new Set();
+  for (const c of data?.components || []) {
+    if (c && c.type === 'subharness' && Number.isInteger(Number(c.ref?.harnessId))) out.add(Number(c.ref.harnessId));
+  }
+  return [...out];
 }

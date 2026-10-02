@@ -1,4 +1,5 @@
-// Kleiner Fetch-Wrapper für die REST-API
+// Small fetch wrapper for the REST API
+import { getLang } from './i18n/index.js';
 
 export class ApiError extends Error {
   constructor(message, status, body) {
@@ -9,7 +10,7 @@ export class ApiError extends Error {
 }
 
 async function request(method, url, body, { raw = false, contentType } = {}) {
-  const headers = { 'X-Requested-With': 'HarnessDesigner' };
+  const headers = { 'X-Requested-With': 'CableDesigner2000', 'X-Lang': getLang() };
   let payload;
   if (body !== undefined) {
     if (raw) {
@@ -24,14 +25,12 @@ async function request(method, url, body, { raw = false, contentType } = {}) {
   try {
     res = await fetch(`/api${url}`, { method, headers, body: payload, credentials: 'same-origin' });
   } catch {
-    throw new ApiError('Server nicht erreichbar.', 0);
+    throw new ApiError(getLang() === 'de' ? 'Server nicht erreichbar.' : 'Server not reachable.', 0);
   }
   let data = null;
   const ct = res.headers.get('content-type') || '';
   if (ct.includes('application/json')) data = await res.json().catch(() => null);
-  if (!res.ok) {
-    throw new ApiError(data?.error || `Fehler ${res.status}`, res.status, data);
-  }
+  if (!res.ok) throw new ApiError(data?.error || `Error ${res.status}`, res.status, data);
   return data;
 }
 
@@ -49,7 +48,7 @@ export function partImageUrl(part) {
   return `/api/parts/${part.id}/image?v=${encodeURIComponent(part.imageVersion || '')}`;
 }
 
-// Lädt ein Bild als Data-URL (für Exporte/Druck)
+// Loads an image as data URL (for exports and printing)
 export async function fetchAsDataUrl(url) {
   const res = await fetch(url, { credentials: 'same-origin' });
   if (!res.ok) return null;
@@ -76,3 +75,7 @@ export function downloadBlob(blob, filename) {
 export function safeFilename(s) {
   return String(s || 'export').replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, ' ').trim().slice(0, 100) || 'export';
 }
+
+// Export file format identifier (older exports used 'harness-designer')
+export const EXPORT_FORMAT = 'cabledesigner2000';
+export const IMPORT_FORMATS = ['cabledesigner2000', 'harness-designer'];

@@ -1,4 +1,4 @@
-// Reine Darstellung des Layouts / Formboards (für Editor, Druck und Bildexport)
+// Pure rendering of the layout / formboard (used by the editor, printing and image export)
 import {
   segmentPoints, roundedPath, labelPlacement, LAY, tableSize, faceSize, closestPointOnRect,
 } from './geometry.js';
@@ -7,6 +7,7 @@ import { wireEndsFor, pinRef } from './derive.js';
 import { NoteShape, noteSize } from './SchematicScene.jsx';
 import { truncate, FONT } from './svgUtil.js';
 import { partImageUrl } from '../api.js';
+import { t } from '../i18n/index.js';
 
 export function tableRows(c, derived) {
   const rows = [];
@@ -98,6 +99,17 @@ function Glyph({ c, theme, selected, dim }) {
       </g>
     );
   }
+  if (c.type === 'subharness') {
+    return (
+      <g opacity={op}>
+        {sel}
+        <rect x={x - 16} y={y - 12} width={32} height={24} rx={5} fill={theme.compHeader} stroke={theme.node} strokeWidth={1.4} strokeDasharray="4 2" />
+        <text x={x} y={y + 5} fontSize={13} textAnchor="middle" fill={theme.text}>
+          ⧉
+        </text>
+      </g>
+    );
+  }
   if (c.type === 'splice') {
     return (
       <g opacity={op}>
@@ -150,7 +162,7 @@ function TableCallout({ c, rect, theme, derived, hoverSet }) {
   const rows = tableRows(c, derived);
   const [cPin, cDest, cWire, cLen] = LAY.tableCols;
   const x0 = rect.x;
-  const heads = ['Pin', 'Ziel', 'Leitung', 'Länge'];
+  const heads = [t('Pin'), t('To'), t('Wire'), t('Length')];
   const xs = [x0 + 8, x0 + cPin + 6, x0 + cPin + cDest + 6, x0 + rect.w - 8];
   return (
     <g>
@@ -221,7 +233,7 @@ export default function LayoutScene({
     if (pts) segGeoms.push({ s, pts, d: roundedPath(pts, 16) });
   }
 
-  // Beschriftung rechts neben dem Bauteil, wenn ein Segment nach oben abgeht
+  // label to the right of the component when a segment leaves upwards
   const labelRight = new Set();
   for (const { s, pts } of segGeoms) {
     for (const [end, nb] of [[s.a, pts[1]], [s.b, pts[pts.length - 2]]]) {
@@ -247,7 +259,7 @@ export default function LayoutScene({
           <NoteShape key={n.id} n={n} theme={theme} selected={selIds.has(n.id)} />
         ))}
 
-      {/* Callout-Führungslinien */}
+      {/* callout leader lines */}
       {doc.components.map((c) =>
         ['image', 'face', 'table'].map((k) => {
           if (!c.show?.[k]) return null;
@@ -257,7 +269,7 @@ export default function LayoutScene({
         })
       )}
 
-      {/* Segmente */}
+      {/* segments */}
       {segGeoms.map(({ s, d }) => {
         const n = derived.segInfo.get(s.id)?.wires.length || 0;
         const w = 5 + Math.min(9, n * 0.8);
@@ -274,7 +286,7 @@ export default function LayoutScene({
         );
       })}
 
-      {/* Hervorgehobene Leitungswege */}
+      {/* highlighted wire routes */}
       {hoverSet &&
         [...hoverSet].map((id) => {
           const info = derived.wireInfo.get(id);
@@ -289,7 +301,7 @@ export default function LayoutScene({
           });
         })}
 
-      {/* Längenbeschriftungen */}
+      {/* length labels */}
       {segGeoms.map(({ s, pts }) => {
         const lp = labelPlacement(pts);
         if (lp.segLen < 24) return null;
@@ -314,7 +326,7 @@ export default function LayoutScene({
         );
       })}
 
-      {/* Knickpunkte des ausgewählten Segments */}
+      {/* bend points of the selected segment */}
       {interactive &&
         segGeoms
           .filter(({ s }) => selIds.has(s.id))
@@ -324,7 +336,7 @@ export default function LayoutScene({
             ))
           )}
 
-      {/* Steckpaarungen */}
+      {/* mated pairs */}
       {derived.matePairs.map(([a, b]) => {
         const dx = b.lay.x - a.lay.x;
         const dy = b.lay.y - a.lay.y;
@@ -348,7 +360,7 @@ export default function LayoutScene({
         );
       })}
 
-      {/* Abzweigpunkte */}
+      {/* branch points */}
       {doc.nodes.map((n) => {
         const sel = selIds.has(n.id);
         const dim = hoverSet && !activeNodes.has(n.id);
@@ -373,7 +385,7 @@ export default function LayoutScene({
         );
       })}
 
-      {/* Bauteile */}
+      {/* components */}
       {doc.components.map((c) => {
         const sel = selIds.has(c.id);
         const dim = hoverSet && !activeNodes.has(c.id);
@@ -409,7 +421,7 @@ export default function LayoutScene({
         );
       })}
 
-      {/* Callouts */}
+      {/* callouts */}
       {doc.components.map((c) =>
         ['image', 'face', 'table'].map((k) => {
           if (!c.show?.[k]) return null;
@@ -424,7 +436,7 @@ export default function LayoutScene({
                   <image href={href} x={r.x + 4} y={r.y + 4} width={r.w - 8} height={r.h - 8} preserveAspectRatio="xMidYMid meet" />
                 ) : (
                   <text x={r.x + r.w / 2} y={r.y + r.h / 2 + 4} fontSize={10} textAnchor="middle" fill="#888">
-                    kein Bild
+                    {t('no image')}
                   </text>
                 )}
               </g>

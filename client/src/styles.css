@@ -54,7 +54,7 @@ p { margin: 0 0 8px; }
 .spacer { flex: 1; }
 .hidden { display: none !important; }
 
-/* ---------- Formulare ---------- */
+/* ---------- Forms ---------- */
 button, .btn {
   font: inherit;
   display: inline-flex;
@@ -114,7 +114,7 @@ label.check { display: inline-flex; align-items: center; gap: 6px; cursor: point
 .badge.warn { background: var(--warn-bg); color: var(--warn); border-color: rgba(242, 179, 61, 0.4); }
 .badge.ok { background: rgba(76, 195, 138, 0.12); color: var(--ok); border-color: rgba(76, 195, 138, 0.4); }
 
-/* ---------- App-Rahmen ---------- */
+/* ---------- App frame ---------- */
 .app { display: flex; flex-direction: column; height: 100%; }
 .topbar { display: flex; align-items: center; gap: 14px; height: 50px; padding: 0 16px; border-bottom: 1px solid var(--border); background: var(--bg-2); flex-shrink: 0; }
 .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: 0.2px; color: var(--text); }
@@ -134,7 +134,7 @@ label.check { display: inline-flex; align-items: center; gap: 6px; cursor: point
 .tile .tile-title { font-weight: 600; display: flex; align-items: center; gap: 8px; }
 .tile .tile-actions { display: flex; gap: 4px; margin-top: auto; }
 
-/* ---------- Tabellen ---------- */
+/* ---------- Tables ---------- */
 table.table { border-collapse: collapse; width: 100%; font-size: 13px; }
 table.table th, table.table td { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
 table.table th { color: var(--muted); font-weight: 500; font-size: 12px; background: var(--panel); position: sticky; top: 0; z-index: 1; }
@@ -151,7 +151,7 @@ table.table td.num, table.table th.num { text-align: right; font-variant-numeric
 .modal-body { padding: 16px; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
 .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); }
 
-/* ---------- Kontextmenü ---------- */
+/* ---------- Context menu ---------- */
 .ctx-menu { position: fixed; z-index: 200; min-width: 210px; background: var(--panel-2); border: 1px solid var(--border-2); border-radius: 9px; box-shadow: var(--shadow); padding: 5px; font-size: 13.5px; }
 .ctx-item { display: flex; align-items: center; gap: 9px; padding: 6px 9px; border-radius: 6px; cursor: pointer; color: var(--text); position: relative; white-space: nowrap; }
 .ctx-item:hover, .ctx-item.open { background: var(--panel-3); }
@@ -229,7 +229,7 @@ table.table td.num, table.table th.num { text-align: right; font-variant-numeric
 .part-thumb { width: 44px; height: 44px; object-fit: contain; background: #fff; border-radius: 6px; }
 .part-thumb.empty { background: var(--panel-3); display: inline-flex; align-items: center; justify-content: center; color: var(--muted); font-size: 11px; }
 
-/* ---------- Druck ---------- */
+/* ---------- Print ---------- */
 #print-root { display: none; }
 @media print {
   html, body { background: #fff !important; color: #000 !important; height: auto; }
@@ -259,6 +259,6 @@ table.table td.num, table.table th.num { text-align: right; font-variant-numeric
 .print-table tr { page-break-inside: avoid; break-inside: avoid; }
 .print-swatch { display: inline-block; width: 3mm; height: 3mm; border: 0.4pt solid #333; vertical-align: middle; margin-right: 1mm; }
 
-/* Layout-Griffe */
+/* Layout handles */
 .lay-node .lay-handle { opacity: 0; transition: opacity 0.12s; cursor: crosshair; }
 .lay-node:hover .lay-handle { opacity: 1; }

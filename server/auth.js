@@ -1,11 +1,12 @@
 import crypto from 'node:crypto';
 import { db } from './db.js';
+import { t } from './i18n.js';
 
 const SESSION_DAYS = Number(process.env.SESSION_DAYS || 30);
-export const COOKIE_NAME = 'hd_session';
+export const COOKIE_NAME = 'cd2000_session';
 const COOKIE_SECURE = String(process.env.COOKIE_SECURE || 'false').toLowerCase() === 'true';
 
-// ---------- Passwörter (scrypt) ----------
+// ---------- Passwords (scrypt) ----------
 const SCRYPT = { N: 16384, r: 8, p: 1, keylen: 64 };
 
 export function hashPassword(password) {
@@ -28,15 +29,16 @@ export function verifyPassword(password, stored) {
   }
 }
 
+// Validators return an English message (translated by the route) or null
 export function validatePassword(pw) {
-  if (typeof pw !== 'string' || pw.length < 8) return 'Das Passwort muss mindestens 8 Zeichen lang sein.';
-  if (pw.length > 200) return 'Das Passwort ist zu lang.';
+  if (typeof pw !== 'string' || pw.length < 8) return 'Password must be at least 8 characters long.';
+  if (pw.length > 200) return 'Password is too long.';
   return null;
 }
 
 export function validateUsername(name) {
   if (typeof name !== 'string' || !/^[a-zA-Z0-9._-]{2,40}$/.test(name)) {
-    return 'Benutzername: 2–40 Zeichen, erlaubt sind Buchstaben, Ziffern, Punkt, Unterstrich und Bindestrich.';
+    return 'Username: 2–40 characters; letters, digits, dot, underscore and hyphen are allowed.';
   }
   return null;
 }
@@ -54,13 +56,7 @@ export function createSession(res, userId) {
 }
 
 function setCookie(res, token, expires) {
-  const parts = [
-    `${COOKIE_NAME}=${token}`,
-    'Path=/',
-    'HttpOnly',
-    'SameSite=Lax',
-    `Expires=${expires.toUTCString()}`,
-  ];
+  const parts = [`${COOKIE_NAME}=${token}`, 'Path=/', 'HttpOnly', 'SameSite=Lax', `Expires=${expires.toUTCString()}`];
   if (COOKIE_SECURE) parts.push('Secure');
   res.setHeader('Set-Cookie', parts.join('; '));
 }
@@ -83,16 +79,16 @@ function readCookie(req) {
 }
 
 export function cleanupSessions() {
-  db.prepare("DELETE FROM sessions WHERE expires_at < ?").run(new Date().toISOString());
+  db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(new Date().toISOString());
 }
 
-// Middleware: hängt req.user an, wenn gültige Session vorhanden
+// Middleware: attaches req.user when a valid session exists
 export function loadUser(req, res, next) {
   const token = readCookie(req);
   if (!token) return next();
   const row = db
     .prepare(
-      `SELECT s.token_hash, s.expires_at, u.id, u.username, u.display_name, u.is_admin, u.disabled
+      `SELECT s.token_hash, s.expires_at, u.id, u.username, u.display_name, u.is_admin, u.disabled, u.language
        FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?`
     )
     .get(sha256(token));
@@ -102,7 +98,7 @@ export function loadUser(req, res, next) {
     db.prepare('DELETE FROM sessions WHERE token_hash = ?').run(row.token_hash);
     return next();
   }
-  // Gleitende Verlängerung, wenn weniger als die Hälfte der Laufzeit übrig ist
+  // Sliding expiry once less than half of the lifetime is left
   if (expires.getTime() - Date.now() < (SESSION_DAYS * 86400_000) / 2) {
     const newExpires = new Date(Date.now() + SESSION_DAYS * 86400_000);
     db.prepare('UPDATE sessions SET expires_at = ? WHERE token_hash = ?').run(newExpires.toISOString(), row.token_hash);
@@ -113,22 +109,23 @@ export function loadUser(req, res, next) {
     username: row.username,
     displayName: row.display_name,
     isAdmin: !!row.is_admin,
+    language: row.language || 'de',
   };
   next();
 }
 
 export function requireUser(req, res, next) {
-  if (!req.user) return res.status(401).json({ error: 'Nicht angemeldet.' });
+  if (!req.user) return res.status(401).json({ error: t(req, 'Not signed in.') });
   next();
 }
 
 export function requireAdmin(req, res, next) {
-  if (!req.user) return res.status(401).json({ error: 'Nicht angemeldet.' });
-  if (!req.user.isAdmin) return res.status(403).json({ error: 'Nur für Administratoren.' });
+  if (!req.user) return res.status(401).json({ error: t(req, 'Not signed in.') });
+  if (!req.user.isAdmin) return res.status(403).json({ error: t(req, 'Administrators only.') });
   next();
 }
 
-// ---------- Einfache Login-Drosselung ----------
+// ---------- Simple login throttling ----------
 const attempts = new Map();
 const WINDOW_MS = 15 * 60_000;
 const MAX_FAILS = 10;

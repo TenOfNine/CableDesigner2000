@@ -1,10 +1,10 @@
 {
- "format": "harness-designer",
+ "format": "cabledesigner2000",
  "formatVersion": 1,
- "name": "Beispiel – Einspritzung & Zündung",
- "description": "Beispiel-Kabelbaum mit Schottstecker, zwei ECUs, Armaturenbrett und Spleißen.",
+ "name": "Example – injection & ignition",
+ "description": "Example harness with bulkhead connector, two ECUs, dashboard, splices and a twisted CAN pair.",
  "data": {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "settings": {
    "drawingNumber": "KB-001",
    "revision": "A",
@@ -25,24 +25,29 @@
      "category": "connector",
      "partNumber": "DT04-2P",
      "manufacturer": "TE Connectivity DEUTSCH",
-     "description": "DEUTSCH DT, 2-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+     "description": "DEUTSCH DT, 2-way receptacle (pin contacts), contact size 16",
      "hasImage": false,
      "imageVersion": "",
      "data": {
+      "descriptionDe": "DEUTSCH DT, 2-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+      "designation": "numeric",
+      "numbering": "serpentine",
+      "notes": "Cavity layout is schematic – verify against the datasheet before production.",
+      "notesDe": "Kammeranordnung schematisch – vor Fertigung mit Datenblatt abgleichen.",
       "series": "DEUTSCH DT",
       "cavities": 2,
-      "designation": "numeric",
       "rows": 1,
-      "numbering": "serpentine",
       "gender": "male",
       "color": {
-       "name": "Grau",
+       "name": "Grey",
+       "nameDe": "Grau",
        "hex": "#8a8f98"
       },
       "contactPart": "0460-202-16141",
       "contactRange": "16–20 AWG",
       "lockPart": "W2P",
-      "matingPart": "DT06-2S"
+      "matingPart": "DT06-2S",
+      "sealed": true
      }
     },
     "pins": [
@@ -87,24 +92,29 @@
      "category": "connector",
      "partNumber": "DT04-3P",
      "manufacturer": "TE Connectivity DEUTSCH",
-     "description": "DEUTSCH DT, 3-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+     "description": "DEUTSCH DT, 3-way receptacle (pin contacts), contact size 16",
      "hasImage": false,
      "imageVersion": "",
      "data": {
+      "descriptionDe": "DEUTSCH DT, 3-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+      "designation": "numeric",
+      "numbering": "serpentine",
+      "notes": "Cavity layout is schematic – verify against the datasheet before production.",
+      "notesDe": "Kammeranordnung schematisch – vor Fertigung mit Datenblatt abgleichen.",
       "series": "DEUTSCH DT",
       "cavities": 3,
-      "designation": "numeric",
       "rows": 1,
-      "numbering": "serpentine",
       "gender": "male",
       "color": {
-       "name": "Grau",
+       "name": "Grey",
+       "nameDe": "Grau",
        "hex": "#8a8f98"
       },
       "contactPart": "0460-202-16141",
       "contactRange": "16–20 AWG",
       "lockPart": "W3P",
-      "matingPart": "DT06-3S"
+      "matingPart": "DT06-3S",
+      "sealed": true
      }
     },
     "pins": [
@@ -154,24 +164,29 @@
      "category": "connector",
      "partNumber": "DT04-2P",
      "manufacturer": "TE Connectivity DEUTSCH",
-     "description": "DEUTSCH DT, 2-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+     "description": "DEUTSCH DT, 2-way receptacle (pin contacts), contact size 16",
      "hasImage": false,
      "imageVersion": "",
      "data": {
+      "descriptionDe": "DEUTSCH DT, 2-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+      "designation": "numeric",
+      "numbering": "serpentine",
+      "notes": "Cavity layout is schematic – verify against the datasheet before production.",
+      "notesDe": "Kammeranordnung schematisch – vor Fertigung mit Datenblatt abgleichen.",
       "series": "DEUTSCH DT",
       "cavities": 2,
-      "designation": "numeric",
       "rows": 1,
-      "numbering": "serpentine",
       "gender": "male",
       "color": {
-       "name": "Grau",
+       "name": "Grey",
+       "nameDe": "Grau",
        "hex": "#8a8f98"
       },
       "contactPart": "0460-202-16141",
       "contactRange": "16–20 AWG",
       "lockPart": "W2P",
-      "matingPart": "DT06-2S"
+      "matingPart": "DT06-2S",
+      "sealed": true
      }
     },
     "pins": [
@@ -216,24 +231,29 @@
      "category": "connector",
      "partNumber": "DT04-3P",
      "manufacturer": "TE Connectivity DEUTSCH",
-     "description": "DEUTSCH DT, 3-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+     "description": "DEUTSCH DT, 3-way receptacle (pin contacts), contact size 16",
      "hasImage": false,
      "imageVersion": "",
      "data": {
+      "descriptionDe": "DEUTSCH DT, 3-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+      "designation": "numeric",
+      "numbering": "serpentine",
+      "notes": "Cavity layout is schematic – verify against the datasheet before production.",
+      "notesDe": "Kammeranordnung schematisch – vor Fertigung mit Datenblatt abgleichen.",
       "series": "DEUTSCH DT",
       "cavities": 3,
-      "designation": "numeric",
       "rows": 1,
-      "numbering": "serpentine",
       "gender": "male",
       "color": {
-       "name": "Grau",
+       "name": "Grey",
+       "nameDe": "Grau",
        "hex": "#8a8f98"
       },
       "contactPart": "0460-202-16141",
       "contactRange": "16–20 AWG",
       "lockPart": "W3P",
-      "matingPart": "DT06-3S"
+      "matingPart": "DT06-3S",
+      "sealed": true
      }
     },
     "pins": [
@@ -277,18 +297,20 @@
    {
     "id": "cex15",
     "type": "terminal",
-    "label": "GND Motor",
+    "label": "GND Engine",
     "part": {
      "id": null,
      "category": "terminal",
      "partNumber": "",
      "manufacturer": "",
+     "description": "Insulated ring terminal M6, 0.5–1.5 mm² (red)",
      "hasImage": false,
      "imageVersion": "",
-     "description": "Ringkabelschuh isoliert M6, 0,5–1,5 mm² (rot)",
      "data": {
+      "descriptionDe": "Ringkabelschuh isoliert M6, 0,5–1,5 mm² (rot)",
       "subtype": "ring",
-      "stud": "M6"
+      "stud": "M6",
+      "crossSectionRange": "0.5–1.5 mm²"
      }
     },
     "pins": [
@@ -321,10 +343,13 @@
      "category": "splice",
      "partNumber": "",
      "manufacturer": "",
+     "description": "Insulated butt connector, 0.5–1.5 mm² (red)",
      "hasImage": false,
      "imageVersion": "",
-     "description": "Stoßverbinder isoliert, 0,5–1,5 mm² (rot)",
-     "data": {}
+     "data": {
+      "descriptionDe": "Stoßverbinder isoliert, 0,5–1,5 mm² (rot)",
+      "crossSectionRange": "0.5–1.5 mm²"
+     }
     },
     "pins": [
      {
@@ -349,30 +374,35 @@
    {
     "id": "cex19",
     "type": "connector",
-    "label": "Bulk Head E",
+    "label": "Bulkhead E",
     "part": {
      "id": null,
      "category": "connector",
      "partNumber": "DT04-6P",
      "manufacturer": "TE Connectivity DEUTSCH",
-     "description": "DEUTSCH DT, 6-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+     "description": "DEUTSCH DT, 6-way receptacle (pin contacts), contact size 16",
      "hasImage": false,
      "imageVersion": "",
      "data": {
+      "descriptionDe": "DEUTSCH DT, 6-polig, Gehäuse mit Stiftkontakten (Receptacle), Kontaktgröße 16",
+      "designation": "numeric",
+      "numbering": "serpentine",
+      "notes": "Cavity layout is schematic – verify against the datasheet before production.",
+      "notesDe": "Kammeranordnung schematisch – vor Fertigung mit Datenblatt abgleichen.",
       "series": "DEUTSCH DT",
       "cavities": 6,
-      "designation": "numeric",
       "rows": 2,
-      "numbering": "serpentine",
       "gender": "male",
       "color": {
-       "name": "Grau",
+       "name": "Grey",
+       "nameDe": "Grau",
        "hex": "#8a8f98"
       },
       "contactPart": "0460-202-16141",
       "contactRange": "16–20 AWG",
       "lockPart": "W6P",
-      "matingPart": "DT06-6S"
+      "matingPart": "DT06-6S",
+      "sealed": true
      }
     },
     "pins": [
@@ -431,30 +461,35 @@
    {
     "id": "cex26",
     "type": "connector",
-    "label": "Bulk Head C",
+    "label": "Bulkhead C",
     "part": {
      "id": null,
      "category": "connector",
      "partNumber": "DT06-6S",
      "manufacturer": "TE Connectivity DEUTSCH",
-     "description": "DEUTSCH DT, 6-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+     "description": "DEUTSCH DT, 6-way plug (socket contacts), contact size 16",
      "hasImage": false,
      "imageVersion": "",
      "data": {
+      "descriptionDe": "DEUTSCH DT, 6-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+      "designation": "numeric",
+      "numbering": "serpentine",
+      "notes": "Cavity layout is schematic – verify against the datasheet before production.",
+      "notesDe": "Kammeranordnung schematisch – vor Fertigung mit Datenblatt abgleichen.",
       "series": "DEUTSCH DT",
       "cavities": 6,
-      "designation": "numeric",
       "rows": 2,
-      "numbering": "serpentine",
       "gender": "female",
       "color": {
-       "name": "Grau",
+       "name": "Grey",
+       "nameDe": "Grau",
        "hex": "#8a8f98"
       },
       "contactPart": "0462-201-16141",
       "contactRange": "16–20 AWG",
       "lockPart": "W6S",
-      "matingPart": "DT04-6P"
+      "matingPart": "DT04-6P",
+      "sealed": true
      }
     },
     "pins": [
@@ -524,24 +559,29 @@
      "category": "connector",
      "partNumber": "DT06-6S",
      "manufacturer": "TE Connectivity DEUTSCH",
-     "description": "DEUTSCH DT, 6-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+     "description": "DEUTSCH DT, 6-way plug (socket contacts), contact size 16",
      "hasImage": false,
      "imageVersion": "",
      "data": {
+      "descriptionDe": "DEUTSCH DT, 6-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+      "designation": "numeric",
+      "numbering": "serpentine",
+      "notes": "Cavity layout is schematic – verify against the datasheet before production.",
+      "notesDe": "Kammeranordnung schematisch – vor Fertigung mit Datenblatt abgleichen.",
       "series": "DEUTSCH DT",
       "cavities": 6,
-      "designation": "numeric",
       "rows": 2,
-      "numbering": "serpentine",
       "gender": "female",
       "color": {
-       "name": "Grau",
+       "name": "Grey",
+       "nameDe": "Grau",
        "hex": "#8a8f98"
       },
       "contactPart": "0462-201-16141",
       "contactRange": "16–20 AWG",
       "lockPart": "W6S",
-      "matingPart": "DT04-6P"
+      "matingPart": "DT04-6P",
+      "sealed": true
      }
     },
     "pins": [
@@ -606,24 +646,29 @@
      "category": "connector",
      "partNumber": "DT06-2S",
      "manufacturer": "TE Connectivity DEUTSCH",
-     "description": "DEUTSCH DT, 2-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+     "description": "DEUTSCH DT, 2-way plug (socket contacts), contact size 16",
      "hasImage": false,
      "imageVersion": "",
      "data": {
+      "descriptionDe": "DEUTSCH DT, 2-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+      "designation": "numeric",
+      "numbering": "serpentine",
+      "notes": "Cavity layout is schematic – verify against the datasheet before production.",
+      "notesDe": "Kammeranordnung schematisch – vor Fertigung mit Datenblatt abgleichen.",
       "series": "DEUTSCH DT",
       "cavities": 2,
-      "designation": "numeric",
       "rows": 1,
-      "numbering": "serpentine",
       "gender": "female",
       "color": {
-       "name": "Grau",
+       "name": "Grey",
+       "nameDe": "Grau",
        "hex": "#8a8f98"
       },
       "contactPart": "0462-201-16141",
       "contactRange": "16–20 AWG",
       "lockPart": "W2S",
-      "matingPart": "DT04-2P"
+      "matingPart": "DT04-2P",
+      "sealed": true
      }
     },
     "pins": [
@@ -661,24 +706,29 @@
      "category": "connector",
      "partNumber": "DT06-4S",
      "manufacturer": "TE Connectivity DEUTSCH",
-     "description": "DEUTSCH DT, 4-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+     "description": "DEUTSCH DT, 4-way plug (socket contacts), contact size 16",
      "hasImage": false,
      "imageVersion": "",
      "data": {
+      "descriptionDe": "DEUTSCH DT, 4-polig, Gehäuse mit Buchsenkontakten (Plug), Kontaktgröße 16",
+      "designation": "numeric",
+      "numbering": "serpentine",
+      "notes": "Cavity layout is schematic – verify against the datasheet before production.",
+      "notesDe": "Kammeranordnung schematisch – vor Fertigung mit Datenblatt abgleichen.",
       "series": "DEUTSCH DT",
       "cavities": 4,
-      "designation": "numeric",
       "rows": 2,
-      "numbering": "serpentine",
       "gender": "female",
       "color": {
-       "name": "Grau",
+       "name": "Grey",
+       "nameDe": "Grau",
        "hex": "#8a8f98"
       },
       "contactPart": "0462-201-16141",
       "contactRange": "16–20 AWG",
       "lockPart": "W4S",
-      "matingPart": "DT04-4P"
+      "matingPart": "DT04-4P",
+      "sealed": true
      }
     },
     "pins": [
@@ -733,10 +783,13 @@
      "category": "splice",
      "partNumber": "",
      "manufacturer": "",
+     "description": "Insulated butt connector, 0.5–1.5 mm² (red)",
      "hasImage": false,
      "imageVersion": "",
-     "description": "Stoßverbinder isoliert, 0,5–1,5 mm² (rot)",
-     "data": {}
+     "data": {
+      "descriptionDe": "Stoßverbinder isoliert, 0,5–1,5 mm² (rot)",
+      "crossSectionRange": "0.5–1.5 mm²"
+     }
     },
     "pins": [
      {
@@ -767,10 +820,13 @@
      "category": "splice",
      "partNumber": "",
      "manufacturer": "",
+     "description": "Insulated butt connector, 0.5–1.5 mm² (red)",
      "hasImage": false,
      "imageVersion": "",
-     "description": "Stoßverbinder isoliert, 0,5–1,5 mm² (rot)",
-     "data": {}
+     "data": {
+      "descriptionDe": "Stoßverbinder isoliert, 0,5–1,5 mm² (rot)",
+      "crossSectionRange": "0.5–1.5 mm²"
+     }
     },
     "pins": [
      {
@@ -801,12 +857,14 @@
      "category": "terminal",
      "partNumber": "",
      "manufacturer": "",
+     "description": "Insulated ring terminal M6, 0.5–1.5 mm² (red)",
      "hasImage": false,
      "imageVersion": "",
-     "description": "Ringkabelschuh isoliert M6, 0,5–1,5 mm² (rot)",
      "data": {
+      "descriptionDe": "Ringkabelschuh isoliert M6, 0,5–1,5 mm² (rot)",
       "subtype": "ring",
-      "stud": "M6"
+      "stud": "M6",
+      "crossSectionRange": "0.5–1.5 mm²"
      }
     },
     "pins": [
@@ -839,12 +897,14 @@
      "category": "terminal",
      "partNumber": "",
      "manufacturer": "",
+     "description": "Insulated ring terminal M6, 0.5–1.5 mm² (red)",
      "hasImage": false,
      "imageVersion": "",
-     "description": "Ringkabelschuh isoliert M6, 0,5–1,5 mm² (rot)",
      "data": {
+      "descriptionDe": "Ringkabelschuh isoliert M6, 0,5–1,5 mm² (rot)",
       "subtype": "ring",
-      "stud": "M6"
+      "stud": "M6",
+      "crossSectionRange": "0.5–1.5 mm²"
      }
     },
     "pins": [
@@ -947,7 +1007,7 @@
     "signal": "GND",
     "color": "BK",
     "stripe": null,
-    "cs": 1.0,
+    "cs": 1,
     "type": "FLRY-B",
     "part": null,
     "lengthExtra": 0,
@@ -1052,7 +1112,7 @@
     "signal": "GND",
     "color": "BK",
     "stripe": null,
-    "cs": 1.0,
+    "cs": 1,
     "type": "FLRY-B",
     "part": null,
     "lengthExtra": 0,
@@ -1267,7 +1327,9 @@
     "part": null,
     "lengthExtra": 0,
     "lengthOverride": null,
-    "notes": ""
+    "notes": "",
+    "cableId": "kex80",
+    "cableRole": "core"
    },
    {
     "id": "wex75",
@@ -1288,7 +1350,9 @@
     "part": null,
     "lengthExtra": 0,
     "lengthOverride": null,
-    "notes": ""
+    "notes": "",
+    "cableId": "kex80",
+    "cableRole": "core"
    },
    {
     "id": "wex76",
@@ -1375,57 +1439,72 @@
     "notes": ""
    }
   ],
+  "cables": [
+   {
+    "id": "kex80",
+    "label": "TW1",
+    "kind": "twist",
+    "part": null,
+    "type": "",
+    "cores": null,
+    "shield": false,
+    "layLength": 25,
+    "outerDiameter": null,
+    "excludeFromBom": false,
+    "notes": ""
+   }
+  ],
   "nodes": [
    {
-    "id": "nex80",
+    "id": "nex81",
     "x": -550,
     "y": -180,
     "label": "A1"
    },
    {
-    "id": "nex81",
+    "id": "nex82",
     "x": 550,
     "y": -180,
     "label": "A2"
    },
    {
-    "id": "nex82",
+    "id": "nex83",
     "x": -550,
     "y": 0,
     "label": "A3"
    },
    {
-    "id": "nex83",
+    "id": "nex84",
     "x": 550,
     "y": 0,
     "label": "A4"
    },
    {
-    "id": "nex84",
+    "id": "nex85",
     "x": 0,
     "y": 0,
     "label": "A5"
    },
    {
-    "id": "nex85",
+    "id": "nex86",
     "x": 0,
     "y": 560,
     "label": "A6"
    },
    {
-    "id": "nex86",
+    "id": "nex87",
     "x": -240,
     "y": 640,
     "label": "A7"
    },
    {
-    "id": "nex87",
+    "id": "nex88",
     "x": 0,
     "y": 900,
     "label": "A8"
    },
    {
-    "id": "nex88",
+    "id": "nex89",
     "x": 0,
     "y": 1140,
     "label": "A9"
@@ -1433,23 +1512,24 @@
   ],
   "segments": [
    {
-    "id": "sex89",
+    "id": "sex90",
     "a": "cex1",
-    "b": "nex80",
+    "b": "nex81",
     "length": 200,
     "points": [],
     "coverings": [
      {
-      "id": "vex90",
+      "id": "vex91",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "PET cloth tape, 19 mm wide",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Gewebeklebeband PET, 19 mm breit",
        "data": {
+        "descriptionDe": "Gewebeklebeband PET, 19 mm breit",
         "subtype": "tape"
        }
       },
@@ -1459,23 +1539,24 @@
     "label": ""
    },
    {
-    "id": "sex91",
+    "id": "sex92",
     "a": "cex4",
-    "b": "nex80",
+    "b": "nex81",
     "length": 200,
     "points": [],
     "coverings": [
      {
-      "id": "vex92",
+      "id": "vex93",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "PET cloth tape, 19 mm wide",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Gewebeklebeband PET, 19 mm breit",
        "data": {
+        "descriptionDe": "Gewebeklebeband PET, 19 mm breit",
         "subtype": "tape"
        }
       },
@@ -1485,77 +1566,25 @@
     "label": ""
    },
    {
-    "id": "sex93",
+    "id": "sex94",
     "a": "cex8",
-    "b": "nex81",
-    "length": 200,
-    "points": [],
-    "coverings": [
-     {
-      "id": "vex94",
-      "part": {
-       "id": null,
-       "category": "covering",
-       "partNumber": "",
-       "manufacturer": "",
-       "hasImage": false,
-       "imageVersion": "",
-       "description": "Gewebeklebeband PET, 19 mm breit",
-       "data": {
-        "subtype": "tape"
-       }
-      },
-      "label": ""
-     }
-    ],
-    "label": ""
-   },
-   {
-    "id": "sex95",
-    "a": "cex11",
-    "b": "nex81",
-    "length": 200,
-    "points": [],
-    "coverings": [
-     {
-      "id": "vex96",
-      "part": {
-       "id": null,
-       "category": "covering",
-       "partNumber": "",
-       "manufacturer": "",
-       "hasImage": false,
-       "imageVersion": "",
-       "description": "Gewebeklebeband PET, 19 mm breit",
-       "data": {
-        "subtype": "tape"
-       }
-      },
-      "label": ""
-     }
-    ],
-    "label": ""
-   },
-   {
-    "id": "sex97",
-    "a": "nex80",
     "b": "nex82",
-    "length": 300,
+    "length": 200,
     "points": [],
     "coverings": [
      {
-      "id": "vex98",
+      "id": "vex95",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "PET cloth tape, 19 mm wide",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Wellrohr PA, geschlitzt, NW 10",
        "data": {
-        "subtype": "corrugated",
-        "innerDiameter": 10
+        "descriptionDe": "Gewebeklebeband PET, 19 mm breit",
+        "subtype": "tape"
        }
       },
       "label": ""
@@ -1564,23 +1593,51 @@
     "label": ""
    },
    {
-    "id": "sex99",
+    "id": "sex96",
+    "a": "cex11",
+    "b": "nex82",
+    "length": 200,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex97",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "description": "PET cloth tape, 19 mm wide",
+       "hasImage": false,
+       "imageVersion": "",
+       "data": {
+        "descriptionDe": "Gewebeklebeband PET, 19 mm breit",
+        "subtype": "tape"
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex98",
     "a": "nex81",
     "b": "nex83",
     "length": 300,
     "points": [],
     "coverings": [
      {
-      "id": "vex100",
+      "id": "vex99",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "Corrugated tube PA, slit, NW 10",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Wellrohr PA, geschlitzt, NW 10",
        "data": {
+        "descriptionDe": "Wellrohr PA, geschlitzt, NW 10",
         "subtype": "corrugated",
         "innerDiameter": 10
        }
@@ -1591,59 +1648,61 @@
     "label": ""
    },
    {
-    "id": "sex101",
+    "id": "sex100",
+    "a": "nex82",
+    "b": "nex84",
+    "length": 300,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex101",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "description": "Corrugated tube PA, slit, NW 10",
+       "hasImage": false,
+       "imageVersion": "",
+       "data": {
+        "descriptionDe": "Wellrohr PA, geschlitzt, NW 10",
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex102",
     "a": "cex15",
-    "b": "nex82",
+    "b": "nex83",
     "length": 300,
     "points": [],
     "coverings": [],
     "label": ""
    },
    {
-    "id": "sex102",
-    "a": "nex82",
-    "b": "nex84",
-    "length": 700,
-    "points": [],
-    "coverings": [
-     {
-      "id": "vex103",
-      "part": {
-       "id": null,
-       "category": "covering",
-       "partNumber": "",
-       "manufacturer": "",
-       "hasImage": false,
-       "imageVersion": "",
-       "description": "Wellrohr PA, geschlitzt, NW 10",
-       "data": {
-        "subtype": "corrugated",
-        "innerDiameter": 10
-       }
-      },
-      "label": ""
-     }
-    ],
-    "label": ""
-   },
-   {
-    "id": "sex104",
+    "id": "sex103",
     "a": "nex83",
-    "b": "nex84",
+    "b": "nex85",
     "length": 700,
     "points": [],
     "coverings": [
      {
-      "id": "vex105",
+      "id": "vex104",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "Corrugated tube PA, slit, NW 10",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Wellrohr PA, geschlitzt, NW 10",
        "data": {
+        "descriptionDe": "Wellrohr PA, geschlitzt, NW 10",
         "subtype": "corrugated",
         "innerDiameter": 10
        }
@@ -1654,23 +1713,52 @@
     "label": ""
    },
    {
-    "id": "sex106",
+    "id": "sex105",
     "a": "nex84",
+    "b": "nex85",
+    "length": 700,
+    "points": [],
+    "coverings": [
+     {
+      "id": "vex106",
+      "part": {
+       "id": null,
+       "category": "covering",
+       "partNumber": "",
+       "manufacturer": "",
+       "description": "Corrugated tube PA, slit, NW 10",
+       "hasImage": false,
+       "imageVersion": "",
+       "data": {
+        "descriptionDe": "Wellrohr PA, geschlitzt, NW 10",
+        "subtype": "corrugated",
+        "innerDiameter": 10
+       }
+      },
+      "label": ""
+     }
+    ],
+    "label": ""
+   },
+   {
+    "id": "sex107",
+    "a": "nex85",
     "b": "cex17",
     "length": 150,
     "points": [],
     "coverings": [
      {
-      "id": "vex107",
+      "id": "vex108",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "Corrugated tube PA, slit, NW 10",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Wellrohr PA, geschlitzt, NW 10",
        "data": {
+        "descriptionDe": "Wellrohr PA, geschlitzt, NW 10",
         "subtype": "corrugated",
         "innerDiameter": 10
        }
@@ -1681,23 +1769,24 @@
     "label": ""
    },
    {
-    "id": "sex108",
+    "id": "sex109",
     "a": "cex17",
     "b": "cex19",
     "length": 150,
     "points": [],
     "coverings": [
      {
-      "id": "vex109",
+      "id": "vex110",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "Corrugated tube PA, slit, NW 10",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Wellrohr PA, geschlitzt, NW 10",
        "data": {
+        "descriptionDe": "Wellrohr PA, geschlitzt, NW 10",
         "subtype": "corrugated",
         "innerDiameter": 10
        }
@@ -1708,23 +1797,24 @@
     "label": ""
    },
    {
-    "id": "sex110",
+    "id": "sex111",
     "a": "cex26",
-    "b": "nex85",
+    "b": "nex86",
     "length": 500,
     "points": [],
     "coverings": [
      {
-      "id": "vex111",
+      "id": "vex112",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "Corrugated tube PA, slit, NW 10",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Wellrohr PA, geschlitzt, NW 10",
        "data": {
+        "descriptionDe": "Wellrohr PA, geschlitzt, NW 10",
         "subtype": "corrugated",
         "innerDiameter": 10
        }
@@ -1735,23 +1825,24 @@
     "label": ""
    },
    {
-    "id": "sex112",
-    "a": "nex85",
-    "b": "nex86",
+    "id": "sex113",
+    "a": "nex86",
+    "b": "nex87",
     "length": 600,
     "points": [],
     "coverings": [
      {
-      "id": "vex113",
+      "id": "vex114",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "Corrugated tube PA, slit, NW 10",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Wellrohr PA, geschlitzt, NW 10",
        "data": {
+        "descriptionDe": "Wellrohr PA, geschlitzt, NW 10",
         "subtype": "corrugated",
         "innerDiameter": 10
        }
@@ -1762,8 +1853,8 @@
     "label": ""
    },
    {
-    "id": "sex114",
-    "a": "nex86",
+    "id": "sex115",
+    "a": "nex87",
     "b": "cex33",
     "length": 100,
     "points": [],
@@ -1771,8 +1862,8 @@
     "label": ""
    },
    {
-    "id": "sex115",
-    "a": "nex86",
+    "id": "sex116",
+    "a": "nex87",
     "b": "cex40",
     "length": 100,
     "points": [],
@@ -1780,23 +1871,24 @@
     "label": ""
    },
    {
-    "id": "sex116",
-    "a": "nex85",
-    "b": "nex87",
+    "id": "sex117",
+    "a": "nex86",
+    "b": "nex88",
     "length": 400,
     "points": [],
     "coverings": [
      {
-      "id": "vex117",
+      "id": "vex118",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "Corrugated tube PA, slit, NW 10",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Wellrohr PA, geschlitzt, NW 10",
        "data": {
+        "descriptionDe": "Wellrohr PA, geschlitzt, NW 10",
         "subtype": "corrugated",
         "innerDiameter": 10
        }
@@ -1807,23 +1899,24 @@
     "label": ""
    },
    {
-    "id": "sex118",
-    "a": "nex87",
+    "id": "sex119",
+    "a": "nex88",
     "b": "cex43",
     "length": 800,
     "points": [],
     "coverings": [
      {
-      "id": "vex119",
+      "id": "vex120",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "Corrugated tube PA, slit, NW 10",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Wellrohr PA, geschlitzt, NW 10",
        "data": {
+        "descriptionDe": "Wellrohr PA, geschlitzt, NW 10",
         "subtype": "corrugated",
         "innerDiameter": 10
        }
@@ -1834,23 +1927,24 @@
     "label": ""
    },
    {
-    "id": "sex120",
-    "a": "nex87",
+    "id": "sex121",
+    "a": "nex88",
     "b": "cex48",
     "length": 400,
     "points": [],
     "coverings": [
      {
-      "id": "vex121",
+      "id": "vex122",
       "part": {
        "id": null,
        "category": "covering",
        "partNumber": "",
        "manufacturer": "",
+       "description": "Corrugated tube PA, slit, NW 10",
        "hasImage": false,
        "imageVersion": "",
-       "description": "Wellrohr PA, geschlitzt, NW 10",
        "data": {
+        "descriptionDe": "Wellrohr PA, geschlitzt, NW 10",
         "subtype": "corrugated",
         "innerDiameter": 10
        }
@@ -1861,7 +1955,7 @@
     "label": ""
    },
    {
-    "id": "sex122",
+    "id": "sex123",
     "a": "cex48",
     "b": "cex50",
     "length": 50,
@@ -1870,17 +1964,17 @@
     "label": ""
    },
    {
-    "id": "sex123",
+    "id": "sex124",
     "a": "cex50",
-    "b": "nex88",
+    "b": "nex89",
     "length": 150,
     "points": [],
     "coverings": [],
     "label": ""
    },
    {
-    "id": "sex124",
-    "a": "nex88",
+    "id": "sex125",
+    "a": "nex89",
     "b": "cex52",
     "length": 200,
     "points": [],
@@ -1888,8 +1982,8 @@
     "label": ""
    },
    {
-    "id": "sex125",
-    "a": "nex88",
+    "id": "sex126",
+    "a": "nex89",
     "b": "cex54",
     "length": 200,
     "points": [],
@@ -1899,18 +1993,18 @@
   ],
   "notes": [
    {
-    "id": "nex126",
+    "id": "nex127",
     "view": "sch",
     "x": 0,
     "y": -110,
-    "text": "Beispiel: Einspritzung & Zündung\nMotorseite links, Fahrzeugseite rechts (über Schottstecker E/C)"
+    "text": "Example: injection & ignition\nEngine side left, vehicle side right (via bulkhead connector E/C)"
    },
    {
-    "id": "nex127",
+    "id": "nex128",
     "view": "lay",
     "x": 260,
     "y": 1120,
-    "text": "Batterieanschluss\nRingkabelschuhe M6"
+    "text": "Battery connection\nRing terminals M6"
    }
   ]
  }

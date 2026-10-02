@@ -1,7 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { useEditor } from './store.js';
 
-// Startet ein Ziehen mit globalen Listenern
+// Starts a drag with global listeners
 export function startDrag(e, { onMove, onEnd, threshold = 3 }) {
   const sx = e.clientX;
   const sy = e.clientY;
@@ -23,8 +23,8 @@ export function startDrag(e, { onMove, onEnd, threshold = 3 }) {
 }
 
 /**
- * SVG-Zeichenfläche mit Raster, Verschieben (Hintergrund ziehen / mittlere Maustaste)
- * und Zoom (Mausrad). Der Inhalt wird in Weltkoordinaten gezeichnet.
+ * SVG canvas with grid, panning (drag the background / middle mouse button)
+ * and zoom (mouse wheel). The content is drawn in world coordinates.
  */
 const Canvas = forwardRef(function Canvas({ view, children, onPointerDown, onContextMenu, onDoubleClick, onPointerOver, onPointerOut, onBackgroundDown, overlay }, ref) {
   const svgRef = useRef(null);
@@ -72,7 +72,7 @@ const Canvas = forwardRef(function Canvas({ view, children, onPointerDown, onCon
 
   useImperativeHandle(ref, () => ({ toWorld, toScreen, fit, zoomBy, svg: () => svgRef.current }), [toWorld, toScreen, fit, zoomBy]);
 
-  // Mausrad-Zoom (nicht-passiv, damit die Seite nicht scrollt)
+  // wheel zoom (non-passive so the page does not scroll)
   useEffect(() => {
     const el = svgRef.current;
     const onWheel = (e) => {
@@ -93,7 +93,7 @@ const Canvas = forwardRef(function Canvas({ view, children, onPointerDown, onCon
   const handleDown = (e) => {
     const isBg = e.target === svgRef.current || e.target.dataset?.bg === '1';
     if (e.button === 1 || (e.button === 0 && isBg && !e.shiftKey && !onBackgroundDown?.(e, toWorld(e.clientX, e.clientY)))) {
-      // Verschieben
+      // pan
       e.preventDefault();
       const start = { ...vpRef.current };
       const sx = e.clientX;

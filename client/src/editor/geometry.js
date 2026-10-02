@@ -1,6 +1,6 @@
-// Geometrie für Schaltplan und Layout
+// Geometry for schematic and layout views
 
-// ---------- Schaltplan ----------
+// ---------- Schematic ----------
 export const SCH = {
   connW: 184,
   headH: 30,
@@ -13,9 +13,12 @@ export const SCH = {
   grid: 10,
 };
 
-export function schBox(c) {
+// `derived` is needed for sub-harness blocks (their height depends on the embedded harness)
+export function schBox(c, derived) {
   const { x, y } = c.sch;
   switch (c.type) {
+    case 'subharness':
+      return derived?.subs?.get(c.id)?.box || { x, y, w: SCH.connW + 16, h: 62 };
     case 'connector':
       return { x, y, w: SCH.connW, h: SCH.headH + Math.max(1, c.pins.length) * SCH.rowH + 4 };
     case 'terminal':
@@ -29,12 +32,12 @@ export function schBox(c) {
   }
 }
 
-export function schCenter(c) {
-  const b = schBox(c);
+export function schCenter(c, derived) {
+  const b = schBox(c, derived);
   return { x: b.x + b.w / 2, y: b.y + b.h / 2 };
 }
 
-// Anschlusspunkt eines Pins; side: 'left' | 'right' | 'auto'
+// Anchor point of a pin; side: 'left' | 'right'
 export function schAnchor(c, pinIndex, towardX) {
   const b = schBox(c);
   const cx = b.x + b.w / 2;
@@ -53,7 +56,7 @@ export function schPinRowY(c, pinIndex) {
   return b.y + b.h / 2;
 }
 
-// Orthogonaler Leitungsverlauf zwischen zwei Anschlusspunkten
+// Orthogonal wire path between two anchor points
 export function orthoPoints(a, b, midX) {
   const STUB = 22;
   if (midX !== undefined && midX !== null) {
@@ -73,14 +76,14 @@ export function orthoPoints(a, b, midX) {
     const mx = aOut === 1 ? Math.max(a.x, b.x) + STUB * 1.5 : Math.min(a.x, b.x) - STUB * 1.5;
     return [a, { x: mx, y: a.y }, { x: mx, y: b.y }, b];
   }
-  // Rückwärts: S-Kurve
+  // Backwards: S-curve
   const ax = a.x + aOut * STUB;
   const bx = b.x + bOut * STUB;
   const my = (a.y + b.y) / 2;
   return [a, { x: ax, y: a.y }, { x: ax, y: my }, { x: bx, y: my }, { x: bx, y: b.y }, b];
 }
 
-// Polylinie mit abgerundeten Ecken als SVG-Pfad
+// Polyline with rounded corners as SVG path
 export function roundedPath(pts, radius = 8) {
   const p = dedupe(pts);
   if (p.length < 2) return '';
@@ -140,7 +143,7 @@ export function polylineLength(pts) {
   return l;
 }
 
-// Punkt auf Polylinie nahe p: { index (Teilstück), t, point, dist }
+// Point on a polyline closest to p: { index (sub-segment), t, point, dist }
 export function nearestOnPolyline(pts, p) {
   let best = null;
   for (let i = 1; i < pts.length; i++) {
@@ -158,7 +161,7 @@ export function nearestOnPolyline(pts, p) {
   return best;
 }
 
-// Anteil der Zeichnungslänge bis zu einem Punkt (für proportionale Längenaufteilung)
+// Fraction of the drawn length up to a point (for proportional length split)
 export function fractionAlong(pts, hit) {
   const total = polylineLength(pts) || 1;
   let l = 0;
@@ -168,7 +171,7 @@ export function fractionAlong(pts, hit) {
   return l / total;
 }
 
-// Beschriftungsposition: Mitte des längsten Teilstücks
+// Label position: middle of the longest sub-segment
 export function labelPlacement(pts) {
   let bi = 1;
   let bl = -1;
@@ -203,24 +206,6 @@ export function faceSize(count, rows) {
   const r = Math.max(1, Math.min(rows || 1, count || 1));
   const cols = Math.ceil((count || 1) / r);
   return { w: cols * LAY.faceCell + 16, h: r * LAY.faceCell + 16 };
-}
-
-export const DEFAULT_CALLOUT = {
-  image: (c) => ({ dx: -LAY.imageSize - 50, dy: -LAY.imageSize / 2 }),
-  face: (c) => ({ dx: 46, dy: -faceSize(c.pins.length, c.part?.data?.rows).h / 2 }),
-  table: (c) => {
-    const s = tableSize(c.pins.length);
-    return { dx: -s.w / 2, dy: -s.h - 70 };
-  },
-};
-
-export function calloutRect(c, kind) {
-  const off = c.callouts?.[kind] || DEFAULT_CALLOUT[kind](c);
-  let size;
-  if (kind === 'image') size = { w: LAY.imageSize, h: LAY.imageSize };
-  else if (kind === 'face') size = faceSize(c.pins.length, c.part?.data?.rows);
-  else size = tableSize(c.pins.length);
-  return { x: c.lay.x + off.dx, y: c.lay.y + off.dy, ...size };
 }
 
 export function closestPointOnRect(r, p) {

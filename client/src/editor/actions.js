@@ -1,8 +1,10 @@
-// Bearbeitungsaktionen auf dem Dokument (über den Store, mit Rückgängig)
+// Editing actions on the document (through the store, with undo)
 import { useEditor } from './store.js';
 import {
-  createConnector, createTerminal, createSplice, createDevice, createWire, nextLabel, uid, snapshotPart, designationsFor,
+  createConnector, createTerminal, createSplice, createDevice, createSubharness, createWire, createCable, nextLabel, uid,
+  snapshotPart, designationsFor,
 } from './model.js';
+import { t } from '../i18n/index.js';
 import { snap } from './geometry.js';
 
 const S = () => useEditor.getState();
@@ -19,9 +21,11 @@ export function addComponent(kind, pos, opts = {}) {
       created = createSplice({ label: opts.label || nextLabel(doc, 'S'), part: opts.part, pos: p });
     } else if (kind === 'device') {
       created = createDevice({ label: opts.label || nextLabel(doc, opts.subtype === 'resistor' ? 'R' : 'D'), subtype: opts.subtype, part: opts.part, pos: p });
+    } else if (kind === 'subharness') {
+      created = createSubharness({ label: opts.label || nextLabel(doc, 'SH'), harnessId: opts.harnessId, harnessName: opts.harnessName, pos: p });
     }
     if (!created) return false;
-    // Layoutposition: in der Layoutansicht an der Klickposition, sonst neben vorhandenen Bauteilen
+    // Layout position: at the click position in the layout view, otherwise next to existing components
     if (opts.layPos) created.lay = { x: snap(opts.layPos.x), y: snap(opts.layPos.y) };
     else created.lay = freeLayoutSpot(doc, p);
     if (opts.schPos) created.sch = { x: snap(opts.schPos.x), y: snap(opts.schPos.y) };
@@ -46,7 +50,7 @@ function freeLayoutSpot(doc, p) {
   return { x, y };
 }
 
-// Freie Position im Schaltplan (für Bauteile, die im Layout angelegt werden)
+// Free position in the schematic (for components created in the layout view)
 export function freeSchematicSpot(doc) {
   let maxY = 0;
   let minX = 0;
@@ -60,7 +64,7 @@ export function freeSchematicSpot(doc) {
 export function addNote(view, pos, text) {
   const id = uid('n');
   S().update((doc) => {
-    doc.notes.push({ id, view, x: snap(pos.x), y: snap(pos.y), text: text || 'Notiz' });
+    doc.notes.push({ id, view, x: snap(pos.x), y: snap(pos.y), text: text || t('Note') });
   });
   S().select([{ kind: 'note', id }]);
 }
@@ -78,20 +82,33 @@ export function deleteItems(doc, items) {
   const segIds = new Set(items.filter((s) => s.kind === 'segment').map((s) => s.id));
   const nodeIds = new Set(items.filter((s) => s.kind === 'node').map((s) => s.id));
   const noteIds = new Set(items.filter((s) => s.kind === 'note').map((s) => s.id));
+  const cableIds = new Set(items.filter((s) => s.kind === 'cable').map((s) => s.id));
 
   for (const nid of nodeIds) removeNode(doc, nid);
   doc.segments = doc.segments.filter((s) => !segIds.has(s.id));
   if (compIds.size) {
+    // also covers the virtual interface components of deleted sub-harnesses ("<subId>::<childId>")
+    const gone = (id) => !!id && (compIds.has(id) || compIds.has(String(id).split('::')[0]));
     doc.components = doc.components.filter((c) => !compIds.has(c.id));
-    for (const c of doc.components) if (compIds.has(c.mateId)) c.mateId = null;
-    doc.wires = doc.wires.filter((w) => !compIds.has(w.from.c) && !compIds.has(w.to.c));
+    for (const c of doc.components) if (gone(c.mateId)) c.mateId = null;
+    doc.wires = doc.wires.filter((w) => !gone(w.from.c) && !gone(w.to.c));
     doc.segments = doc.segments.filter((s) => !compIds.has(s.a) && !compIds.has(s.b));
   }
   doc.wires = doc.wires.filter((w) => !wireIds.has(w.id));
   doc.notes = doc.notes.filter((n) => !noteIds.has(n.id));
+  // Deleting a cable/twist only dissolves the group, the wires remain
+  if (cableIds.size) {
+    doc.cables = (doc.cables || []).filter((k) => !cableIds.has(k.id));
+    for (const w of doc.wires) if (cableIds.has(w.cableId)) {
+      delete w.cableId;
+      delete w.cableRole;
+    }
+  }
+  const remaining = new Set((doc.cables || []).map((k) => k.id));
+  for (const w of doc.wires) if (w.cableId && !remaining.has(w.cableId)) delete w.cableId;
 }
 
-// Abzweigpunkt entfernen; bei genau zwei Segmenten werden diese zusammengeführt
+// Removes a branch point; with exactly two segments they are merged
 export function removeNode(doc, nid) {
   const node = doc.nodes.find((n) => n.id === nid);
   if (!node) return;
@@ -151,7 +168,7 @@ export function duplicateSelection(offset = { x: 40, y: 40 }) {
       doc.components.push(copy);
       newSel.push({ kind: 'component', id: copy.id });
     }
-    // Leitungen zwischen kopierten Bauteilen mitkopieren
+    // copy wires between copied components
     for (const w of [...doc.wires]) {
       if (ids.has(w.from.c) && ids.has(w.to.c)) {
         const nw = structuredClone(w);
@@ -160,6 +177,8 @@ export function duplicateSelection(offset = { x: 40, y: 40 }) {
         nw.from = { c: map.get(w.from.c), p: map.get(w.from.p) };
         nw.to = { c: map.get(w.to.c), p: map.get(w.to.p) };
         delete nw.schMid;
+        delete nw.cableId;
+        delete nw.cableRole;
         doc.wires.push(nw);
       }
     }
@@ -167,22 +186,21 @@ export function duplicateSelection(offset = { x: 40, y: 40 }) {
   S().select(newSel);
 }
 
+// from/to: { c: componentId, p: pinId, fn?: pin function used as default signal name }
 export function connectPins(from, to) {
   if (!from || !to || from.p === to.p) return null;
   let wire = null;
   S().update((doc) => {
     const defaults = { ...(S().wireDefaults || {}) };
-    const pf = doc.components.find((c) => c.id === from.c)?.pins.find((p) => p.id === from.p);
-    const pt = doc.components.find((c) => c.id === to.c)?.pins.find((p) => p.id === to.p);
-    defaults.signal = pf?.fn || pt?.fn || '';
-    wire = createWire(doc, from, to, defaults);
+    defaults.signal = from.fn || to.fn || '';
+    wire = createWire(doc, { c: from.c, p: from.p }, { c: to.c, p: to.p }, defaults);
     doc.wires.push(wire);
   });
   if (wire) S().select([{ kind: 'wire', id: wire.id }]);
   return wire;
 }
 
-// Teil zuordnen; bei Steckverbindern wird die Pinliste angepasst
+// Assigns a part; for connectors the pin list is adapted
 export function assignPart(compId, part) {
   S().update((doc) => {
     const c = doc.components.find((x) => x.id === compId);
@@ -218,19 +236,63 @@ export function wiresLostByPart(doc, compId, part) {
   return doc.wires.filter((w) => removed.has(w.from.p) || removed.has(w.to.p)).length;
 }
 
+// Mates two connectors. bId may be a virtual interface connector of a sub-harness ("<subId>::<childId>");
+// in that case only the own connector stores the reference.
 export function setMate(aId, bId) {
   S().update((doc) => {
     const a = doc.components.find((c) => c.id === aId);
     if (!a) return false;
-    // Alte Paarungen lösen
+    // release previous pairings
     for (const c of doc.components) {
       if (c.mateId === aId || c.id === a.mateId) c.mateId = null;
-      if (bId && (c.mateId === bId)) c.mateId = null;
+      if (bId && c.mateId === bId) c.mateId = null;
     }
     a.mateId = bId || null;
     if (bId) {
       const b = doc.components.find((c) => c.id === bId);
       if (b) b.mateId = aId;
+    }
+  });
+}
+
+// ---------- Cables / twisted wires ----------
+/** Groups wires into a new multi-core cable or twisted group. Optionally applies the cable's core colours. */
+export function groupWires(wireIds, kind, part = null, applyColors = true) {
+  let created = null;
+  S().update((doc) => {
+    const ids = new Set(wireIds);
+    const members = doc.wires.filter((w) => ids.has(w.id));
+    if (!members.length) return false;
+    created = createCable(doc, { kind, part });
+    doc.cables = doc.cables || [];
+    doc.cables.push(created);
+    const colors = part?.data?.coreColors || [];
+    members.forEach((w, i) => {
+      w.cableId = created.id;
+      w.cableRole = 'core';
+      if (applyColors && colors[i]) {
+        w.color = colors[i];
+        w.stripe = null;
+      }
+      if (part?.data?.crossSection) w.cs = Number(part.data.crossSection);
+      if (part?.data?.type) w.type = part.data.type;
+    });
+    if (!created.cores && kind === 'cable') created.cores = members.length;
+  });
+  if (created) S().select([{ kind: 'cable', id: created.id }]);
+  return created;
+}
+
+export function setWireCable(wireId, cableId) {
+  S().update((doc) => {
+    const w = doc.wires.find((x) => x.id === wireId);
+    if (!w) return false;
+    if (cableId) {
+      w.cableId = cableId;
+      w.cableRole = w.cableRole || 'core';
+    } else {
+      delete w.cableId;
+      delete w.cableRole;
     }
   });
 }
@@ -257,7 +319,7 @@ export function addSegment(doc, a, b) {
   return seg;
 }
 
-// Segment an einem Punkt teilen (hit von nearestOnPolyline, frac Anteil der Zeichenlänge)
+// Splits a segment at a point (hit from nearestOnPolyline, frac = fraction of the drawn length)
 export function splitSegment(doc, segId, hit, frac) {
   const s = doc.segments.find((x) => x.id === segId);
   if (!s) return null;
@@ -267,7 +329,7 @@ export function splitSegment(doc, segId, hit, frac) {
   const before = s.points.slice(0, hit.index);
   const after = s.points.slice(hit.index);
   const total = Number(s.length) || 0;
-  // Aufteilung proportional zur Zeichnung, auf ganze Millimeter gerundet
+  // split proportionally to the drawing, rounded to whole millimetres
   const l1 = Math.round(total * frac);
   const s1 = { ...s, id: uid('s'), b: node.id, points: before, length: total ? l1 : 0, coverings: structuredClone(s.coverings || []) };
   const s2 = { ...s, id: uid('s'), a: node.id, points: after, length: total ? Math.round((total - l1) * 10) / 10 : 0, coverings: structuredClone(s.coverings || []) };

@@ -6,6 +6,7 @@ import { DARK } from './theme.js';
 import { snap, segmentPoints, nearestOnPolyline, fractionAlong, labelPlacement } from './geometry.js';
 import { addNodeAt, addSegment, splitSegment } from './actions.js';
 import { noteSize } from './SchematicScene.jsx';
+import { t } from '../i18n/index.js';
 
 export default function LayoutView({ derived, onContextMenu, fitSignal }) {
   const canvasRef = useRef(null);
@@ -279,7 +280,7 @@ export default function LayoutView({ derived, onContextMenu, fitSignal }) {
     st.setHover(null);
   };
 
-  // Position des Längen-Eingabefelds
+  // position of the length input
   let lenPos = null;
   if (editLen) {
     const seg = doc.segments.find((s) => s.id === editLen.segId);
@@ -332,11 +333,11 @@ export default function LayoutView({ derived, onContextMenu, fitSignal }) {
       </Canvas>
       {!readOnly && (
         <div className="canvas-tools">
-          <button className={tool === 'select' ? 'active' : ''} onClick={() => setTool('select')} title="Auswählen und verschieben (V)">
-            ↖ Auswählen
+          <button className={tool === 'select' ? 'active' : ''} onClick={() => setTool('select')} title={t('Select and move (V)')}>
+            ↖ {t('Select')}
           </button>
-          <button className={tool === 'segment' ? 'active' : ''} onClick={() => setTool('segment')} title="Segmente zeichnen (S)">
-            ⟋ Segment zeichnen
+          <button className={tool === 'segment' ? 'active' : ''} onClick={() => setTool('segment')} title={t('Draw segments (S)')}>
+            ⟋ {t('Draw segment')}
           </button>
         </div>
       )}
@@ -345,7 +346,7 @@ export default function LayoutView({ derived, onContextMenu, fitSignal }) {
           className="len-input"
           autoFocus
           style={{ left: lenPos.x, top: lenPos.y }}
-          placeholder="Länge mm"
+          placeholder={t('Length mm')}
           value={editLen.value}
           onChange={(e) => setEditLen({ ...editLen, value: e.target.value })}
           onKeyDown={(e) => {
@@ -357,14 +358,14 @@ export default function LayoutView({ derived, onContextMenu, fitSignal }) {
         />
       )}
       <div className="canvas-hud">
-        <button onClick={() => canvasRef.current.zoomBy(1 / 1.2)} title="Verkleinern">−</button>
-        <button onClick={() => canvasRef.current.zoomBy(1.2)} title="Vergrößern">＋</button>
-        <button onClick={fit} title="Alles anzeigen (F)">Einpassen</button>
+        <button onClick={() => canvasRef.current.zoomBy(1 / 1.2)} title={t('Zoom out')}>−</button>
+        <button onClick={() => canvasRef.current.zoomBy(1.2)} title={t('Zoom in')}>＋</button>
+        <button onClick={fit} title={t('Show everything (F)')}>{t('Fit')}</button>
       </div>
       {!readOnly && <div className="canvas-hint">
         {tool === 'segment'
-          ? 'Von einem Bauteil/Abzweig ziehen = Segment · auf ein Segment ziehen = T-Abzweig · auf freie Fläche = neuer Abzweigpunkt'
-          : 'Am ＋-Griff ziehen = Segment · Doppelklick auf Länge = bearbeiten · Rechtsklick auf Segment = Abzweig/Knick/Ummantelung · Alt+Hover = Leitungen im Segment'}
+          ? t('Drag from a component/branch = segment · onto a segment = T-branch · onto free space = new branch point')
+          : t('Drag the ＋ handle = segment · double-click a length = edit · right-click a segment = branch/bend/covering · Alt+hover = wires in segment')}
       </div>}
     </div>
   );

@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { api, downloadBlob, safeFilename } from '../api.js';
+import { api, downloadBlob, safeFilename, EXPORT_FORMAT, IMPORT_FORMATS } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { Modal, useDialogs, fmtDate, Dropdown, MenuButton } from '../components/ui.jsx';
+import { t } from '../i18n/index.js';
 
-const PERM_LABEL = { owner: 'Eigentümer', write: 'Bearbeiten', read: 'Lesen' };
+const permLabel = (p) => ({ owner: t('Owner'), write: t('Edit'), read: t('Read') })[p];
 
 function buildTree(projects) {
   const byId = new Map(projects.map((p) => [p.id, { ...p, children: [] }]));
@@ -14,7 +15,7 @@ function buildTree(projects) {
     else roots.push(p);
   }
   const sort = (arr) => {
-    arr.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+    arr.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
     arr.forEach((n) => sort(n.children));
   };
   sort(roots);
@@ -37,8 +38,7 @@ export default function Dashboard() {
 
   const loadProjects = useCallback(async () => {
     try {
-      const { projects } = await api.get('/projects');
-      setProjects(projects);
+      setProjects((await api.get('/projects')).projects);
     } catch (e) {
       setError(e.message);
     }
@@ -53,8 +53,7 @@ export default function Dashboard() {
   const loadHarnesses = useCallback(async () => {
     if (!selectedId) return setHarnesses([]);
     try {
-      const { harnesses } = await api.get(`/projects/${selectedId}/harnesses`);
-      setHarnesses(harnesses);
+      setHarnesses((await api.get(`/projects/${selectedId}/harnesses`)).harnesses);
     } catch (e) {
       setError(e.message);
       setHarnesses([]);
@@ -64,7 +63,7 @@ export default function Dashboard() {
     loadHarnesses();
   }, [loadHarnesses]);
 
-  // Pfad zum ausgewählten Projekt aufklappen
+  // Expand the path to the selected project
   useEffect(() => {
     if (!selected) return;
     setExpanded((prev) => {
@@ -99,7 +98,7 @@ export default function Dashboard() {
 
   const createProject = (parentId) =>
     run(async () => {
-      const name = await dialogs.prompt(parentId ? 'Neues Unterprojekt' : 'Neues Projekt', { label: 'Name', okLabel: 'Anlegen' });
+      const name = await dialogs.prompt(parentId ? t('New sub-project') : t('New project'), { label: t('Name'), okLabel: t('Create') });
       if (!name?.trim()) return;
       const res = await api.post('/projects', { name, parentId });
       setProjects(res.projects);
@@ -108,24 +107,24 @@ export default function Dashboard() {
 
   const renameProject = (p) =>
     run(async () => {
-      const name = await dialogs.prompt('Projekt umbenennen', { label: 'Name', value: p.name, okLabel: 'Speichern' });
+      const name = await dialogs.prompt(t('Rename project'), { label: t('Name'), value: p.name, okLabel: t('Save') });
       if (!name?.trim() || name === p.name) return;
       setProjects((await api.patch(`/projects/${p.id}`, { name })).projects);
     });
 
   const editDescription = (p) =>
     run(async () => {
-      const description = await dialogs.prompt('Beschreibung', { label: 'Beschreibung', value: p.description, multiline: true, okLabel: 'Speichern' });
+      const description = await dialogs.prompt(t('Description'), { label: t('Description'), value: p.description, multiline: true, okLabel: t('Save') });
       if (description === null) return;
       setProjects((await api.patch(`/projects/${p.id}`, { description })).projects);
     });
 
   const deleteProject = (p) =>
     run(async () => {
-      const ok = await dialogs.confirm(
-        `Projekt „${p.name}“ mit allen Unterprojekten und Kabelbäumen endgültig löschen?`,
-        { okLabel: 'Löschen', danger: true }
-      );
+      const ok = await dialogs.confirm(t('Permanently delete project "{name}" with all sub-projects and harnesses?', { name: p.name }), {
+        okLabel: t('Delete'),
+        danger: true,
+      });
       if (!ok) return;
       setProjects((await api.del(`/projects/${p.id}`)).projects);
       navigate(p.parentId ? `/project/${p.parentId}` : '/');
@@ -133,7 +132,7 @@ export default function Dashboard() {
 
   const createHarness = () =>
     run(async () => {
-      const name = await dialogs.prompt('Neuer Kabelbaum', { label: 'Name', okLabel: 'Anlegen' });
+      const name = await dialogs.prompt(t('New harness'), { label: t('Name'), okLabel: t('Create') });
       if (!name?.trim()) return;
       const { id } = await api.post(`/projects/${selectedId}/harnesses`, { name });
       navigate(`/harness/${id}`);
@@ -141,7 +140,7 @@ export default function Dashboard() {
 
   const renameHarness = (h) =>
     run(async () => {
-      const name = await dialogs.prompt('Kabelbaum umbenennen', { label: 'Name', value: h.name, okLabel: 'Speichern' });
+      const name = await dialogs.prompt(t('Rename harness'), { label: t('Name'), value: h.name, okLabel: t('Save') });
       if (!name?.trim() || name === h.name) return;
       await api.patch(`/harnesses/${h.id}`, { name });
       loadHarnesses();
@@ -156,7 +155,7 @@ export default function Dashboard() {
 
   const deleteHarness = (h) =>
     run(async () => {
-      const ok = await dialogs.confirm(`Kabelbaum „${h.name}“ endgültig löschen?`, { okLabel: 'Löschen', danger: true });
+      const ok = await dialogs.confirm(t('Permanently delete harness "{name}"?', { name: h.name }), { okLabel: t('Delete'), danger: true });
       if (!ok) return;
       await api.del(`/harnesses/${h.id}`);
       loadHarnesses();
@@ -166,7 +165,7 @@ export default function Dashboard() {
   const exportJson = (h) =>
     run(async () => {
       const { harness } = await api.get(`/harnesses/${h.id}`);
-      const payload = { format: 'harness-designer', formatVersion: 1, name: harness.name, description: harness.description, data: harness.data };
+      const payload = { format: EXPORT_FORMAT, formatVersion: 1, name: harness.name, description: harness.description, data: harness.data };
       downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), `${safeFilename(harness.name)}.harness.json`);
     });
 
@@ -177,9 +176,9 @@ export default function Dashboard() {
       try {
         payload = JSON.parse(text);
       } catch {
-        throw new Error('Die Datei ist kein gültiges JSON.');
+        throw new Error(t('The file is not valid JSON.'));
       }
-      if (payload?.format !== 'harness-designer' || !payload.data) throw new Error('Die Datei ist kein Harness-Designer-Export.');
+      if (!IMPORT_FORMATS.includes(payload?.format) || !payload.data) throw new Error(t('The file is not a CableDesigner2000 export.'));
       const { id } = await api.post(`/projects/${selectedId}/harnesses`, {
         name: payload.name || file.name.replace(/\.json$/i, ''),
         description: payload.description || '',
@@ -202,11 +201,7 @@ export default function Dashboard() {
 
   const renderNode = (node, depth) => (
     <div key={node.id}>
-      <div
-        className={`tree-node ${node.id === selectedId ? 'selected' : ''}`}
-        style={{ paddingLeft: 6 + depth * 14 }}
-        onClick={() => navigate(`/project/${node.id}`)}
-      >
+      <div className={`tree-node ${node.id === selectedId ? 'selected' : ''}`} style={{ paddingLeft: 6 + depth * 14 }} onClick={() => navigate(`/project/${node.id}`)}>
         <span
           className="twisty"
           onClick={(e) => {
@@ -230,17 +225,17 @@ export default function Dashboard() {
     <div className="dash">
       <aside className="dash-side">
         <div className="tree-title">
-          <span>Meine Projekte</span>
-          <button className="ghost small" onClick={() => createProject(null)} title="Neues Projekt">
+          <span>{t('My projects')}</span>
+          <button className="ghost small" onClick={() => createProject(null)} title={t('New project')}>
             ＋
           </button>
         </div>
-        {projects && ownRoots.length === 0 && <div className="muted small" style={{ padding: '0 8px' }}>Noch keine Projekte.</div>}
+        {projects && ownRoots.length === 0 && <div className="muted small" style={{ padding: '0 8px' }}>{t('No projects yet.')}</div>}
         {ownRoots.map((n) => renderNode(n, 0))}
         {sharedRoots.length > 0 && (
           <>
             <div className="tree-title" style={{ marginTop: 12 }}>
-              <span>Mit mir geteilt</span>
+              <span>{t('Shared with me')}</span>
             </div>
             {sharedRoots.map((n) => renderNode(n, 0))}
           </>
@@ -253,21 +248,19 @@ export default function Dashboard() {
             {error}
           </div>
         )}
-        {!projects && <div className="muted">Lade …</div>}
+        {!projects && <div className="muted">{t('Loading …')}</div>}
 
         {projects && !selected && (
           <div className="col" style={{ gap: 16 }}>
             <div className="row">
-              <h1 className="grow">Hallo {user.displayName}</h1>
+              <h1 className="grow">{t('Hello {name}', { name: user.displayName })}</h1>
               <button className="primary" onClick={() => createProject(null)}>
-                ＋ Neues Projekt
+                ＋ {t('New project')}
               </button>
             </div>
-            {selectedId && <div className="warn-box">Das Projekt wurde nicht gefunden oder ist nicht mehr freigegeben.</div>}
+            {selectedId && <div className="warn-box">{t('The project was not found or is no longer shared.')}</div>}
             {tree.roots.length === 0 ? (
-              <div className="empty">
-                Lege dein erstes Projekt an. Innerhalb eines Projekts kannst du beliebig viele Unterprojekte und Kabelbäume anlegen.
-              </div>
+              <div className="empty">{t('Create your first project. Inside a project you can create any number of sub-projects and harnesses.')}</div>
             ) : (
               <div className="card-grid">
                 {tree.roots.map((p) => (
@@ -282,7 +275,7 @@ export default function Dashboard() {
           <div className="col" style={{ gap: 18 }}>
             <div className="col" style={{ gap: 6 }}>
               <div className="row small muted wrap">
-                <Link to="/">Projekte</Link>
+                <Link to="/">{t('Projects')}</Link>
                 {path.map((p) => (
                   <span key={p.id} className="row" style={{ gap: 6 }}>
                     <span>›</span>
@@ -292,37 +285,33 @@ export default function Dashboard() {
               </div>
               <div className="row wrap">
                 <h1>{selected.name}</h1>
-                <span className={`badge ${isOwner ? '' : 'accent'}`}>{PERM_LABEL[selected.permission]}</span>
-                {!isOwner && <span className="muted small">von {selected.ownerName}</span>}
+                <span className={`badge ${isOwner ? '' : 'accent'}`}>{permLabel(selected.permission)}</span>
+                {!isOwner && <span className="muted small">{t('by {name}', { name: selected.ownerName })}</span>}
                 <div className="spacer" />
-                {canWrite && (
-                  <button onClick={() => createProject(selected.id)} title="Unterprojekt anlegen">
-                    ＋ Unterprojekt
-                  </button>
-                )}
+                {canWrite && <button onClick={() => createProject(selected.id)}>＋ {t('Sub-project')}</button>}
                 {canWrite && (
                   <button className="primary" onClick={createHarness}>
-                    ＋ Kabelbaum
+                    ＋ {t('Harness')}
                   </button>
                 )}
-                <Dropdown label="⋯" buttonClass="icon">
+                <Dropdown label="⋯" buttonClass="icon" title={t('More')}>
                   <MenuButton icon="✎" disabled={!canWrite} onClick={() => renameProject(selected)}>
-                    Umbenennen
+                    {t('Rename')}
                   </MenuButton>
                   <MenuButton icon="¶" disabled={!canWrite} onClick={() => editDescription(selected)}>
-                    Beschreibung bearbeiten
+                    {t('Edit description')}
                   </MenuButton>
                   <MenuButton icon="⇪" disabled={!canWrite} onClick={() => importRef.current?.click()}>
-                    Kabelbaum importieren (JSON)
+                    {t('Import harness (JSON)')}
                   </MenuButton>
                   <MenuButton icon="🔗" disabled={!isOwner} onClick={() => setShareFor(selected)}>
-                    Freigeben …
+                    {t('Share …')}
                   </MenuButton>
                   <MenuButton icon="↦" disabled={!isOwner} onClick={() => setMoveFor(selected)}>
-                    Verschieben …
+                    {t('Move …')}
                   </MenuButton>
                   <MenuButton icon="🗑" danger disabled={!isOwner} onClick={() => deleteProject(selected)}>
-                    Löschen
+                    {t('Delete')}
                   </MenuButton>
                 </Dropdown>
                 <input
@@ -342,7 +331,7 @@ export default function Dashboard() {
 
             {selected.children.length > 0 && (
               <section className="col">
-                <h3>Unterprojekte</h3>
+                <h3>{t('Sub-projects')}</h3>
                 <div className="card-grid">
                   {selected.children.map((p) => (
                     <ProjectTile key={p.id} p={p} onOpen={() => navigate(`/project/${p.id}`)} />
@@ -352,14 +341,14 @@ export default function Dashboard() {
             )}
 
             <section className="col">
-              <h3>Kabelbäume</h3>
+              <h3>{t('Harnesses')}</h3>
               {harnesses.length === 0 ? (
                 <div className="empty">
-                  Noch keine Kabelbäume in diesem Projekt.
+                  {t('No harnesses in this project yet.')}
                   {canWrite && (
                     <div style={{ marginTop: 10 }}>
                       <button className="primary" onClick={createHarness}>
-                        ＋ Kabelbaum anlegen
+                        ＋ {t('Create harness')}
                       </button>
                     </div>
                   )}
@@ -374,28 +363,27 @@ export default function Dashboard() {
                       </div>
                       {h.description && <div className="muted small">{h.description}</div>}
                       <div className="muted small">
-                        Geändert {fmtDate(h.updatedAt)}
-                        {h.updatedByName ? ` von ${h.updatedByName}` : ''}
+                        {h.updatedByName ? t('Changed {date} by {name}', { date: fmtDate(h.updatedAt), name: h.updatedByName }) : t('Changed {date}', { date: fmtDate(h.updatedAt) })}
                       </div>
                       <div className="tile-actions" onClick={(e) => e.stopPropagation()}>
                         <button className="small" onClick={() => navigate(`/harness/${h.id}`)}>
-                          Öffnen
+                          {t('Open')}
                         </button>
                         <Dropdown label="⋯" buttonClass="small">
                           <MenuButton icon="✎" disabled={!canWrite} onClick={() => renameHarness(h)}>
-                            Umbenennen
+                            {t('Rename')}
                           </MenuButton>
                           <MenuButton icon="⧉" disabled={!canWrite} onClick={() => duplicateHarness(h)}>
-                            Duplizieren
+                            {t('Duplicate')}
                           </MenuButton>
                           <MenuButton icon="↦" disabled={!canWrite} onClick={() => setMoveFor({ harness: h })}>
-                            In anderes Projekt verschieben …
+                            {t('Move to another project …')}
                           </MenuButton>
                           <MenuButton icon="⇩" onClick={() => exportJson(h)}>
-                            Als JSON exportieren
+                            {t('Export as JSON')}
                           </MenuButton>
                           <MenuButton icon="🗑" danger disabled={!canWrite} onClick={() => deleteHarness(h)}>
-                            Löschen
+                            {t('Delete')}
                           </MenuButton>
                         </Dropdown>
                       </div>
@@ -435,11 +423,11 @@ function ProjectTile({ p, onOpen }) {
       </div>
       {p.description && <div className="muted small" style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxHeight: 36 }}>{p.description}</div>}
       <div className="muted small">
-        {p.children.length} Unterprojekt{p.children.length === 1 ? '' : 'e'} · {p.harnessCount} Kabelb{p.harnessCount === 1 ? 'aum' : 'äume'}
+        {t('{n} sub-projects · {m} harnesses', { n: p.children.length, m: p.harnessCount })}
       </div>
       {p.permission !== 'owner' && (
         <div className="small">
-          <span className="badge accent">{PERM_LABEL[p.permission]}</span> <span className="muted">von {p.ownerName}</span>
+          <span className="badge accent">{permLabel(p.permission)}</span> <span className="muted">{t('by {name}', { name: p.ownerName })}</span>
         </div>
       )}
     </div>
@@ -497,15 +485,14 @@ function ShareDialog({ project, onClose }) {
   const available = users.filter((u) => !sharedIds.has(u.id));
 
   return (
-    <Modal title={`„${project.name}“ freigeben`} onClose={onClose} footer={<button onClick={onClose}>Schließen</button>}>
+    <Modal title={t('Share "{name}"', { name: project.name })} onClose={onClose} footer={<button onClick={onClose}>{t('Close')}</button>}>
       <p className="muted small">
-        Eine Freigabe gilt für dieses Projekt inklusive aller Unterprojekte und Kabelbäume. „Lesen“ erlaubt Ansehen und Exportieren,
-        „Bearbeiten“ zusätzlich Ändern und Anlegen.
+        {t('A share applies to this project including all sub-projects and harnesses. "Read" allows viewing and exporting, "Edit" additionally changing and creating.')}
       </p>
       {error && <div className="error-box">{error}</div>}
       <div className="row">
         <select className="grow" value={userId} onChange={(e) => setUserId(e.target.value)}>
-          <option value="">Benutzer wählen …</option>
+          <option value="">{t('Choose user …')}</option>
           {available.map((u) => (
             <option key={u.id} value={u.id}>
               {u.displayName} ({u.username})
@@ -513,11 +500,11 @@ function ShareDialog({ project, onClose }) {
           ))}
         </select>
         <select value={permission} onChange={(e) => setPermission(e.target.value)}>
-          <option value="read">Lesen</option>
-          <option value="write">Bearbeiten</option>
+          <option value="read">{t('Read')}</option>
+          <option value="write">{t('Edit')}</option>
         </select>
         <button className="primary" disabled={!userId} onClick={add}>
-          Hinzufügen
+          {t('Add')}
         </button>
       </div>
       {data && (
@@ -525,7 +512,7 @@ function ShareDialog({ project, onClose }) {
           <tbody>
             {data.shares.length === 0 && (
               <tr>
-                <td className="muted">Noch keine Freigaben.</td>
+                <td className="muted">{t('No shares yet.')}</td>
               </tr>
             )}
             {data.shares.map((s) => (
@@ -535,12 +522,12 @@ function ShareDialog({ project, onClose }) {
                 </td>
                 <td style={{ width: 140 }}>
                   <select className="small" value={s.permission} onChange={(e) => change(s.userId, e.target.value)}>
-                    <option value="read">Lesen</option>
-                    <option value="write">Bearbeiten</option>
+                    <option value="read">{t('Read')}</option>
+                    <option value="write">{t('Edit')}</option>
                   </select>
                 </td>
                 <td style={{ width: 40 }}>
-                  <button className="ghost small danger" onClick={() => remove(s.userId)} title="Freigabe entfernen">
+                  <button className="ghost small danger" onClick={() => remove(s.userId)} title={t('Remove share')}>
                     ✕
                   </button>
                 </td>
@@ -551,10 +538,10 @@ function ShareDialog({ project, onClose }) {
       )}
       {data?.inherited?.length > 0 && (
         <div className="col" style={{ gap: 4 }}>
-          <div className="muted small">Geerbt von übergeordneten Projekten:</div>
+          <div className="muted small">{t('Inherited from parent projects:')}</div>
           {data.inherited.map((s, i) => (
             <div key={i} className="small">
-              {s.displayName} – {PERM_LABEL[s.permission]} <span className="muted">(über „{s.projectName}“)</span>
+              {s.displayName} – {permLabel(s.permission)} <span className="muted">({t('via "{name}"', { name: s.projectName })})</span>
             </div>
           ))}
         </div>
@@ -568,7 +555,6 @@ function MoveDialog({ target, projects, tree, onClose, onDone }) {
   const [dest, setDest] = useState('');
   const [error, setError] = useState('');
 
-  // Mögliche Ziele
   const options = useMemo(() => {
     const out = [];
     const walk = (nodes, depth) => {
@@ -577,7 +563,7 @@ function MoveDialog({ target, projects, tree, onClose, onDone }) {
         if (isHarness) ok = n.permission === 'owner' || n.permission === 'write';
         else {
           ok = n.permission === 'owner' && n.ownerId === target.ownerId;
-          // nicht in sich selbst oder Nachfahren
+          // not into itself or one of its descendants
           let p = n;
           while (p) {
             if (p.id === target.id) ok = false;
@@ -605,23 +591,23 @@ function MoveDialog({ target, projects, tree, onClose, onDone }) {
 
   return (
     <Modal
-      title={isHarness ? `„${target.harness.name}“ verschieben` : `„${target.name}“ verschieben`}
+      title={t('Move "{name}"', { name: isHarness ? target.harness.name : target.name })}
       onClose={onClose}
       footer={
         <>
-          <button onClick={onClose}>Abbrechen</button>
+          <button onClick={onClose}>{t('Cancel')}</button>
           <button className="primary" disabled={!dest} onClick={submit}>
-            Verschieben
+            {t('Move')}
           </button>
         </>
       }
     >
       {error && <div className="error-box">{error}</div>}
       <label className="field">
-        Ziel
+        {t('Target')}
         <select value={dest} onChange={(e) => setDest(e.target.value)}>
-          <option value="">Bitte wählen …</option>
-          {!isHarness && <option value="root">(oberste Ebene)</option>}
+          <option value="">{t('Please choose …')}</option>
+          {!isHarness && <option value="root">{t('(top level)')}</option>}
           {options.map((o) => (
             <option key={o.id} value={o.id} disabled={!o.ok}>
               {o.label}
@@ -629,7 +615,7 @@ function MoveDialog({ target, projects, tree, onClose, onDone }) {
           ))}
         </select>
       </label>
-      {projects.length === 0 && <div className="muted">Keine Projekte vorhanden.</div>}
+      {projects.length === 0 && <div className="muted">{t('No projects available.')}</div>}
     </Modal>
   );
 }

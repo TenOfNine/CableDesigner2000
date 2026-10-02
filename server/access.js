@@ -18,14 +18,14 @@ const chainStmt = db.prepare(`
   SELECT id, parent_id, owner_id, depth FROM chain ORDER BY depth
 `);
 
-/** Liefert die Kette Projekt → … → Wurzel */
+/** Returns the chain project → … → root */
 export function projectChain(projectId) {
   return chainStmt.all(projectId);
 }
 
 /**
- * Berechtigung eines Benutzers für ein Projekt: 'owner' | 'write' | 'read' | null.
- * Freigaben wirken auf das freigegebene Projekt und alle Unterprojekte.
+ * Permission of a user on a project: 'owner' | 'write' | 'read' | null.
+ * A share applies to the shared project and all of its sub-projects.
  */
 export function projectPermission(userId, projectId) {
   const chain = projectChain(projectId);
@@ -40,7 +40,7 @@ export function projectPermission(userId, projectId) {
   return best;
 }
 
-/** Alle für den Benutzer sichtbaren Projekte (eigene + freigegebene inkl. Unterprojekte) */
+/** All projects visible to the user (own + shared, including sub-projects) */
 export function visibleProjects(userId) {
   const own = db
     .prepare(
@@ -51,7 +51,7 @@ export function visibleProjects(userId) {
     .all(userId)
     .map((p) => ({ ...p, permission: 'owner', shared_root: 0 }));
 
-  // Freigegebene Teilbäume
+  // Shared subtrees
   const shared = db
     .prepare(
       `WITH RECURSIVE tree(id, root_id, permission) AS (
@@ -72,7 +72,7 @@ export function visibleProjects(userId) {
     const existing = map.get(p.id);
     if (!existing || RANK[p.permission] > RANK[existing.permission]) map.set(p.id, p);
   }
-  // Eltern, die nicht sichtbar sind, werden gekappt (freigegebene Wurzeln erscheinen oben)
+  // Invisible parents are cut off (shared roots appear at the top level)
   const result = [...map.values()].map((p) => {
     const parentVisible = p.parent_id && map.has(p.parent_id);
     return {
@@ -103,7 +103,7 @@ export function visibleProjects(userId) {
   }));
 }
 
-/** Alle Nachfahren-IDs (inkl. selbst) */
+/** All descendant ids (including the project itself) */
 export function descendantIds(projectId) {
   return db
     .prepare(

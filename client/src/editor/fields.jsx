@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { getLang } from '../i18n/index.js';
 
-// Textfeld, das erst bei Enter/Verlassen übernimmt (ein Rückgängig-Schritt pro Änderung)
+// Text field that commits on Enter/blur (one undo step per change)
 export function TextField({ value, onCommit, disabled, placeholder, className = '', multiline = false, rows = 3, list }) {
   const [v, setV] = useState(value ?? '');
   useEffect(() => setV(value ?? ''), [value]);
@@ -42,9 +43,9 @@ export function TextField({ value, onCommit, disabled, placeholder, className = 
   );
 }
 
-// Zahlenfeld mit deutschem Dezimalkomma; leer = null
+// Number field accepting decimal comma or point; empty = null
 export function NumberField({ value, onCommit, disabled, placeholder, className = '', min = 0, allowEmpty = false }) {
-  const fmt = (n) => (n === null || n === undefined || n === '' ? '' : String(n).replace('.', ','));
+  const fmt = (n) => (n === null || n === undefined || n === '' ? '' : getLang() === 'de' ? String(n).replace('.', ',') : String(n));
   const [v, setV] = useState(fmt(value));
   useEffect(() => setV(fmt(value)), [value]);
   const commit = () => {

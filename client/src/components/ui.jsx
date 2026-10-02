@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { t, locale } from '../i18n/index.js';
 
 // ---------- Modal ----------
 export function Modal({ title, onClose, children, footer, wide, className = '' }) {
@@ -19,7 +20,7 @@ export function Modal({ title, onClose, children, footer, wide, className = '' }
         <div className="modal-head">
           <h3 className="grow">{title}</h3>
           {onClose && (
-            <button className="ghost icon small" onClick={onClose} aria-label="Schließen">
+            <button className="ghost icon small" onClick={onClose} aria-label={t('Close')}>
               ✕
             </button>
           )}
@@ -32,7 +33,7 @@ export function Modal({ title, onClose, children, footer, wide, className = '' }
   );
 }
 
-// ---------- Kontextmenü ----------
+// ---------- Context menu ----------
 // items: [{ label, icon, onClick, danger, disabled, checked, items: [...] } | { separator: true } | { title }]
 export function ContextMenu({ x, y, items, onClose }) {
   const ref = useRef(null);
@@ -41,10 +42,7 @@ export function ContextMenu({ x, y, items, onClose }) {
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    setPos({
-      x: Math.min(x, window.innerWidth - r.width - 8),
-      y: Math.min(y, window.innerHeight - r.height - 8),
-    });
+    setPos({ x: Math.min(x, window.innerWidth - r.width - 8), y: Math.min(y, window.innerHeight - r.height - 8) });
   }, [x, y]);
   useEffect(() => {
     const onDown = (e) => {
@@ -100,24 +98,23 @@ function MenuItems({ items, onClose }) {
   });
 }
 
-// ---------- Dialoge (confirm/prompt) ----------
+// ---------- Dialogs (confirm / prompt / alert) ----------
 const DialogCtx = createContext(null);
 
 export function DialogProvider({ children }) {
   const [dlg, setDlg] = useState(null);
   const confirm = useCallback(
-    (message, { title = 'Bitte bestätigen', okLabel = 'OK', danger = false } = {}) =>
-      new Promise((resolve) => setDlg({ kind: 'confirm', message, title, okLabel, danger, resolve })),
+    (message, { title, okLabel, danger = false } = {}) =>
+      new Promise((resolve) => setDlg({ kind: 'confirm', message, title: title || t('Please confirm'), okLabel, danger, resolve })),
     []
   );
   const prompt = useCallback(
-    (title, { label = '', value = '', okLabel = 'OK', multiline = false, placeholder = '' } = {}) =>
+    (title, { label = '', value = '', okLabel, multiline = false, placeholder = '' } = {}) =>
       new Promise((resolve) => setDlg({ kind: 'prompt', title, label, value, okLabel, multiline, placeholder, resolve })),
     []
   );
   const alert = useCallback(
-    (message, { title = 'Hinweis' } = {}) =>
-      new Promise((resolve) => setDlg({ kind: 'alert', message, title, resolve })),
+    (message, { title } = {}) => new Promise((resolve) => setDlg({ kind: 'alert', message, title: title || t('Notice'), resolve })),
     []
   );
   const close = (result) => {
@@ -147,9 +144,9 @@ function DialogView({ dlg, close }) {
       onClose={() => close(cancelValue)}
       footer={
         <>
-          {dlg.kind !== 'alert' && <button onClick={() => close(cancelValue)}>Abbrechen</button>}
+          {dlg.kind !== 'alert' && <button onClick={() => close(cancelValue)}>{t('Cancel')}</button>}
           <button className={dlg.danger ? 'danger' : 'primary'} onClick={submit}>
-            {dlg.okLabel || 'OK'}
+            {dlg.okLabel || t('OK')}
           </button>
         </>
       }
@@ -181,7 +178,7 @@ export function useDialogs() {
 }
 
 // ---------- Dropdown ----------
-export function Dropdown({ label, children, className = '', buttonClass = '' }) {
+export function Dropdown({ label, children, className = '', buttonClass = '', title }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   useEffect(() => {
@@ -192,7 +189,7 @@ export function Dropdown({ label, children, className = '', buttonClass = '' }) 
   }, [open]);
   return (
     <div className={`dropdown ${className}`} ref={ref}>
-      <button className={buttonClass} onClick={() => setOpen((o) => !o)}>
+      <button className={buttonClass} onClick={() => setOpen((o) => !o)} title={title}>
         {label}
       </button>
       {open && (
@@ -217,5 +214,5 @@ export function fmtDate(s) {
   if (!s) return '';
   const d = new Date(s.includes('T') ? s : s.replace(' ', 'T') + 'Z');
   if (Number.isNaN(d.getTime())) return s;
-  return d.toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' });
+  return d.toLocaleString(locale(), { dateStyle: 'medium', timeStyle: 'short' });
 }

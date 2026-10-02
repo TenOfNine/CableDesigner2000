@@ -1,7 +1,8 @@
-// Reine Darstellung des Schaltplans (für Editor, Druck und Bildexport)
+// Pure rendering of the schematic (used by the editor, printing and image export)
 import { schBox, schAnchor, schCenter, orthoPoints, roundedPath, SCH } from './geometry.js';
-import { colorByCode, terminalSubtype, partTitle } from './model.js';
+import { colorByCode, terminalSubtype, partTitle, fmtCs, cableKindLabel } from './model.js';
 import { truncate, FONT } from './svgUtil.js';
+import { t } from '../i18n/index.js';
 
 export function computeWireGeometry(doc, derived) {
   const out = new Map();
@@ -11,8 +12,8 @@ export function computeWireGeometry(doc, derived) {
     const tb = derived.pins.get(w.to.p);
     const ca = fa.comp;
     const cb = tb.comp;
-    const centerA = schCenter(ca);
-    const centerB = schCenter(cb);
+    const centerA = schCenter(ca, derived);
+    const centerB = schCenter(cb, derived);
     const same = ca.id === cb.id;
     const a = schAnchor(ca, fa.index, same ? Infinity : centerB.x);
     const b = schAnchor(cb, tb.index, same ? Infinity : centerA.x);
@@ -26,7 +27,7 @@ export function computeWireGeometry(doc, derived) {
       groups.get(key).push(entry);
     }
   }
-  // Parallele Leitungen auf eigene Spuren verteilen
+  // Spread parallel wires onto separate lanes
   for (const list of groups.values()) {
     if (list.length < 2) continue;
     list.sort((p, q) => Math.min(p.a.y, p.b.y) - Math.min(q.a.y, q.b.y) || p.a.y - q.a.y);
@@ -40,7 +41,7 @@ export function computeWireGeometry(doc, derived) {
   return out;
 }
 
-export function schematicBounds(doc) {
+export function schematicBounds(doc, derived) {
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   const add = (x, y, w, h) => {
     minX = Math.min(minX, x);
@@ -49,7 +50,7 @@ export function schematicBounds(doc) {
     maxY = Math.max(maxY, y + h);
   };
   for (const c of doc.components) {
-    const b = schBox(c);
+    const b = schBox(c, derived);
     add(b.x - 40, b.y - 20, b.w + 80, b.h + 30);
   }
   for (const n of doc.notes) if (n.view === 'sch') add(n.x, n.y, noteSize(n).w, noteSize(n).h);
@@ -90,17 +91,16 @@ function WireShape({ geom, theme, selected, dimmed, highlighted, interactive }) 
   const opacity = dimmed ? theme.dim : 1;
   const labelA = labelPos(geom.a);
   const labelB = labelPos(geom.b);
+  const shield = w.cableRole === 'shield';
   return (
     <g data-kind="wire" data-id={w.id} opacity={opacity} style={interactive ? { cursor: 'pointer' } : undefined}>
       {interactive && <path d={d} fill="none" stroke="transparent" strokeWidth={12} />}
       {(selected || highlighted) && (
         <path d={d} fill="none" stroke={selected ? theme.select : theme.highlight} strokeWidth={8} strokeOpacity={0.45} strokeLinejoin="round" strokeLinecap="round" />
       )}
-      <path d={d} fill="none" stroke={theme.wireOutline} strokeOpacity={theme.wireOutlineOpacity} strokeWidth={4.4} strokeLinejoin="round" strokeLinecap="round" />
-      <path d={d} fill="none" stroke={hex} strokeWidth={2.6} strokeLinejoin="round" strokeLinecap="round" />
-      {w.stripe && (
-        <path d={d} fill="none" stroke={colorByCode(w.stripe).hex} strokeWidth={2.6} strokeDasharray="5 5" strokeLinejoin="round" />
-      )}
+      <path d={d} fill="none" stroke={theme.wireOutline} strokeOpacity={theme.wireOutlineOpacity} strokeWidth={4.4} strokeLinejoin="round" strokeLinecap="round" strokeDasharray={shield ? '6 4' : undefined} />
+      <path d={d} fill="none" stroke={hex} strokeWidth={2.6} strokeLinejoin="round" strokeLinecap="round" strokeDasharray={shield ? '6 4' : undefined} />
+      {w.stripe && <path d={d} fill="none" stroke={colorByCode(w.stripe).hex} strokeWidth={2.6} strokeDasharray="5 5" strokeLinejoin="round" />}
       <text x={labelA.x} y={labelA.y} fontSize={8.5} fill={theme.textMuted} textAnchor={labelA.anchor} fontFamily={FONT}>
         {w.label}
       </text>
@@ -116,33 +116,82 @@ function labelPos(a) {
   return a.side === 'right' ? { x: a.x + 7, y: a.y - 4, anchor: 'start' } : { x: a.x - 7, y: a.y - 4, anchor: 'end' };
 }
 
+function midOf(pts) {
+  if (pts.length === 4) return { x: (pts[1].x + pts[2].x) / 2, y: (pts[1].y + pts[2].y) / 2 };
+  let best = 1;
+  let bl = -1;
+  for (let i = 1; i < pts.length; i++) {
+    const l = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+    if (l > bl) {
+      bl = l;
+      best = i;
+    }
+  }
+  return { x: (pts[best].x + pts[best - 1].x) / 2, y: (pts[best].y + pts[best - 1].y) / 2 };
+}
+
+/** Ellipse around the member wires of a cable / twisted group */
+function CableMarker({ ci, geoms, theme, selected, interactive }) {
+  const pts = ci.members.map((w) => geoms.get(w.id)).filter(Boolean).map((g) => midOf(g.pts));
+  if (!pts.length) return null;
+  const xs = pts.map((p) => p.x);
+  const ys = pts.map((p) => p.y);
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+  const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const rx = Math.max(12, (Math.max(...xs) - Math.min(...xs)) / 2 + 10);
+  const ry = Math.max(12, (Math.max(...ys) - Math.min(...ys)) / 2 + 10);
+  const k = ci.cable;
+  const twist = k.kind === 'twist';
+  const nCores = k.cores || ci.cores.length;
+  const sub = twist ? t('twisted') : [k.type || k.part?.partNumber, nCores && ci.cores.length ? `${nCores}×${fmtCs(ci.cores[0].cs).replace(' mm²', '')}` : ''].filter(Boolean).join(' ');
+  const stroke = selected ? theme.select : theme.text;
+  return (
+    <g data-kind="cable" data-id={k.id} style={interactive ? { cursor: 'pointer' } : undefined}>
+      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={interactive ? 'transparent' : 'none'} stroke={stroke} strokeWidth={selected ? 2.2 : 1.4} strokeDasharray={twist ? '3 3' : undefined} pointerEvents={interactive ? 'stroke' : 'none'} />
+      {interactive && <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke="transparent" strokeWidth={10} />}
+      {twist && (
+        <path
+          d={`M${cx - 10},${cy - ry - 7} q2.5,-5 5,0 t5,0 t5,0 t5,0`}
+          fill="none"
+          stroke={stroke}
+          strokeWidth={1.3}
+        />
+      )}
+      <text x={cx + (twist ? 14 : 0)} y={cy - ry - 5} fontSize={10} fontWeight={700} fill={theme.text} textAnchor={twist ? 'start' : 'middle'} fontFamily={FONT}>
+        {k.label}
+        <tspan fontWeight={400} fill={theme.textMuted}>{sub ? `  ${sub}` : ''}</tspan>
+      </text>
+    </g>
+  );
+}
+
 function PinDot({ x, y, comp, pin, theme, used, interactive }) {
   return (
     <g>
-      {interactive && (
-        <circle cx={x} cy={y} r={8} fill="transparent" data-role="pin" data-pin={pin.id} data-comp={comp.id} style={{ cursor: 'crosshair' }} />
-      )}
+      {interactive && <circle cx={x} cy={y} r={8} fill="transparent" data-role="pin" data-pin={pin.id} data-comp={comp.id} style={{ cursor: 'crosshair' }} />}
       <circle cx={x} cy={y} r={3.3} fill={used ? theme.text : theme.pinDot} pointerEvents="none" />
     </g>
   );
 }
 
-function ConnectorShape({ c, derived, theme, selected, highlightPins, interactive, dimmed }) {
+function ConnectorShape({ c, derived, theme, selected, highlightPins, interactive, dimmed, groupId }) {
   const b = schBox(c);
   const stroke = selected ? theme.select : theme.compStroke;
-  const mate = c.mateId ? derived.comps.get(c.mateId) : null;
-  const sub = [c.part ? partTitle(c.part) : 'kein Teil', mate ? `⇄ ${mate.label}` : ''].filter(Boolean).join('  ·  ');
+  const mate = c.mateId ? derived.comps.get(c.mateId) : derived.matePairs.find(([, v]) => v.id === c.id)?.[0];
+  const title = c.virtual ? c.shortLabel : c.label;
+  const sub = [c.part ? partTitle(c.part) : t('no part'), mate ? `⇄ ${mate.label}` : ''].filter(Boolean).join('  ·  ');
+  const moveCursor = interactive ? { cursor: 'move' } : undefined;
   return (
-    <g data-kind="component" data-id={c.id} opacity={dimmed ? 0.55 : 1}>
-      <rect x={b.x} y={b.y} width={b.w} height={b.h} rx={7} fill={theme.compFill} stroke={stroke} strokeWidth={selected ? 2 : 1} style={interactive ? { cursor: 'move' } : undefined} />
+    <g data-kind="component" data-id={groupId || c.id} opacity={dimmed ? 0.55 : 1}>
+      <rect x={b.x} y={b.y} width={b.w} height={b.h} rx={7} fill={theme.compFill} stroke={stroke} strokeWidth={selected ? 2 : 1} style={moveCursor} />
       <path
         d={`M${b.x + 7},${b.y} H${b.x + b.w - 7} Q${b.x + b.w},${b.y} ${b.x + b.w},${b.y + 7} V${b.y + SCH.headH} H${b.x} V${b.y + 7} Q${b.x},${b.y} ${b.x + 7},${b.y} Z`}
         fill={theme.compHeader}
-        style={interactive ? { cursor: 'move' } : undefined}
+        style={moveCursor}
       />
       <line x1={b.x} x2={b.x + b.w} y1={b.y + SCH.headH} y2={b.y + SCH.headH} stroke={theme.compStroke} strokeWidth={1} />
       <text x={b.x + 10} y={b.y + 13} fontSize={12} fontWeight={700} fill={theme.text} fontFamily={FONT} pointerEvents="none">
-        {truncate(c.label, b.w - 20, 12, true)}
+        {truncate(title, b.w - 20, 12, true)}
       </text>
       <text x={b.x + 10} y={b.y + 25} fontSize={9.5} fill={theme.textMuted} fontFamily={FONT} pointerEvents="none">
         {truncate(sub, b.w - 20, 9.5)}
@@ -199,9 +248,7 @@ function SpliceShape({ c, theme, selected, highlightPins, interactive, dimmed })
   const hl = p && highlightPins?.has(p.id);
   return (
     <g data-kind="component" data-id={c.id} opacity={dimmed ? 0.55 : 1}>
-      {interactive && p && (
-        <circle cx={x} cy={y} r={14} fill="transparent" data-role="pin" data-pin={p.id} data-comp={c.id} style={{ cursor: 'crosshair' }} />
-      )}
+      {interactive && p && <circle cx={x} cy={y} r={14} fill="transparent" data-role="pin" data-pin={p.id} data-comp={c.id} style={{ cursor: 'crosshair' }} />}
       <circle cx={x} cy={y} r={SCH.spliceR} fill={hl ? theme.highlight : theme.compHeader} stroke={selected ? theme.select : theme.text} strokeWidth={selected ? 2.5 : 1.5} style={interactive ? { cursor: 'move' } : undefined} />
       <text x={x} y={y - 14} fontSize={11} fontWeight={600} fill={theme.text} textAnchor="middle" fontFamily={FONT} pointerEvents="none">
         {c.label}
@@ -251,6 +298,38 @@ function DeviceShape({ c, derived, theme, selected, highlightPins, interactive, 
   );
 }
 
+/** Embedded sub-harness: frame with the interface connectors of the linked harness */
+function SubharnessShape({ c, derived, theme, selected, highlightPins, interactive, dimmed }) {
+  const sub = derived.subs.get(c.id);
+  const b = sub?.box || schBox(c, derived);
+  return (
+    <g opacity={dimmed ? 0.55 : 1}>
+      <g data-kind="component" data-id={c.id} style={interactive ? { cursor: 'move' } : undefined}>
+        <rect x={b.x} y={b.y} width={b.w} height={b.h} rx={9} fill={theme.compFill} fillOpacity={0.5} stroke={selected ? theme.select : theme.compStroke} strokeWidth={selected ? 2 : 1.2} strokeDasharray="6 4" />
+        <text x={b.x + 10} y={b.y + 15} fontSize={12} fontWeight={700} fill={theme.text} fontFamily={FONT}>
+          ⧉ {truncate(c.label, b.w - 34, 12, true)}
+        </text>
+        <text x={b.x + 10} y={b.y + 29} fontSize={9.5} fill={theme.textMuted} fontFamily={FONT}>
+          {truncate(`${t('Sub-harness')}: ${sub?.name || c.ref?.name || '?'}`, b.w - 20, 9.5)}
+        </text>
+        {sub?.missing && (
+          <text x={b.x + 10} y={b.y + 52} fontSize={10.5} fill="#e5a33b" fontFamily={FONT}>
+            {t('not available')}
+          </text>
+        )}
+        {sub && !sub.missing && sub.virtuals.length === 0 && (
+          <text x={b.x + 10} y={b.y + 52} fontSize={10.5} fill={theme.textMuted} fontFamily={FONT}>
+            {t('no interface connectors')}
+          </text>
+        )}
+      </g>
+      {(sub?.virtuals || []).map((v) => (
+        <ConnectorShape key={v.id} c={v} derived={derived} theme={theme} highlightPins={highlightPins} interactive={interactive} groupId={c.id} />
+      ))}
+    </g>
+  );
+}
+
 export function ComponentShape(props) {
   switch (props.c.type) {
     case 'connector':
@@ -261,6 +340,8 @@ export function ComponentShape(props) {
       return <SpliceShape {...props} />;
     case 'device':
       return <DeviceShape {...props} />;
+    case 'subharness':
+      return <SubharnessShape {...props} />;
     default:
       return null;
   }
@@ -278,8 +359,8 @@ export default function SchematicScene({ doc, derived, theme, selection = [], ho
       if (!info) continue;
       highlightPins.add(info.wire.from.p);
       highlightPins.add(info.wire.to.p);
-      activeComps.add(info.wire.from.c);
-      activeComps.add(info.wire.to.c);
+      activeComps.add(derived.gnode(info.wire.from.c));
+      activeComps.add(derived.gnode(info.wire.to.c));
     }
   }
   const wiresNormal = [];
@@ -295,10 +376,10 @@ export default function SchematicScene({ doc, derived, theme, selection = [], ho
         .map((n) => (
           <NoteShape key={n.id} n={n} theme={theme} selected={selIds.has(n.id)} />
         ))}
-      {/* Paarungen */}
+      {/* mated pairs */}
       {derived.matePairs.map(([a, b]) => {
-        const ba = schBox(a);
-        const bb = schBox(b);
+        const ba = schBox(a, derived);
+        const bb = schBox(b, derived);
         const p1 = { x: ba.x + ba.w / 2, y: ba.y };
         const p2 = { x: bb.x + bb.w / 2, y: bb.y };
         const midX = (p1.x + p2.x) / 2;
@@ -307,7 +388,7 @@ export default function SchematicScene({ doc, derived, theme, selection = [], ho
           <g key={`${a.id}-${b.id}`} pointerEvents="none">
             <path d={`M${p1.x},${p1.y} V${topY} H${p2.x} V${p2.y}`} fill="none" stroke={theme.mate} strokeWidth={1} strokeDasharray="4 4" />
             <text x={midX} y={topY - 4} fontSize={10} fill={theme.mate} textAnchor="middle" fontFamily={FONT}>
-              ⇄ gesteckt
+              ⇄ {t('mated')}
             </text>
           </g>
         );
@@ -338,9 +419,14 @@ export default function SchematicScene({ doc, derived, theme, selection = [], ho
           dimmed={hoverSet && !hoverSet.has(g.wire.id)}
         />
       ))}
+      {[...derived.cableInfo.values()].map((ci) => (
+        <CableMarker key={ci.cable.id} ci={ci} geoms={geoms} theme={theme} selected={selIds.has(ci.cable.id)} interactive={interactive} />
+      ))}
       {preview && (
         <path d={`M${preview.a.x},${preview.a.y} L${preview.b.x},${preview.b.y}`} stroke={theme.select} strokeWidth={2} strokeDasharray="6 5" fill="none" pointerEvents="none" />
       )}
     </g>
   );
 }
+
+export { cableKindLabel };

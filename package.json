@@ -1,9 +1,9 @@
 {
-  "name": "harness-designer",
-  "version": "0.1.0",
+  "name": "cabledesigner2000",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Web-basierter Kabelbaum-Designer mit Schaltplan, Layout, Bibliothek und Exporten",
+  "description": "Web-based cable harness designer with schematic, layout/formboard, part library and exports",
   "scripts": {
     "dev": "concurrently -k -n server,client \"node --watch server/index.js\" \"vite\"",
     "build": "vite build",

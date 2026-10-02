@@ -1,15 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useEditor } from './store.js';
-import { wireListRows, pinoutRows, segmentRows, bomRows } from './tables.js';
+import { wireListRows, pinoutRows, segmentRows, bomRows, cableRows } from './tables.js';
 import { fmtNum, fmtCs } from './model.js';
-
-const TABS = [
-  ['wires', 'Leitungsliste'],
-  ['bom', 'Stückliste'],
-  ['pinout', 'Pinbelegung'],
-  ['segments', 'Segmente'],
-  ['checks', 'Prüfung'],
-];
+import { t } from '../i18n/index.js';
 
 export default function TablesView({ derived }) {
   const doc = useEditor((s) => s.doc);
@@ -17,13 +10,25 @@ export default function TablesView({ derived }) {
   const select = useEditor((s) => s.select);
   const setHover = useEditor((s) => s.setHover);
   const [tab, setTab] = useState('wires');
+  const [exploded, setExploded] = useState(false);
   const selIds = new Set(selection.map((s) => s.id));
 
   const wires = useMemo(() => wireListRows(doc, derived), [doc, derived]);
   const pins = useMemo(() => pinoutRows(doc, derived), [doc, derived]);
   const segs = useMemo(() => segmentRows(doc, derived), [doc, derived]);
-  const bom = useMemo(() => bomRows(derived), [derived]);
+  const cables = useMemo(() => cableRows(doc, derived), [doc, derived]);
+  const bom = useMemo(() => bomRows(derived, exploded), [derived, exploded]);
   const warnCount = derived.warnings.filter((w) => w.level === 'warn').length;
+  const hasSubs = derived.subs.size > 0;
+
+  const TABS = [
+    ['wires', t('Wire list')],
+    ['bom', t('Bill of materials')],
+    ['pinout', t('Pin assignment')],
+    ['cables', t('Cables')],
+    ['segments', t('Segments')],
+    ['checks', t('Checks')],
+  ];
 
   const rowProps = (kind, id) =>
     id
@@ -35,6 +40,8 @@ export default function TablesView({ derived }) {
           onMouseLeave: kind === 'wire' ? () => setHover(null) : undefined,
         }
       : {};
+
+  const lenCell = (len, extra) => (len === null ? <span style={{ color: 'var(--warn)' }}>–</span> : <>{`${fmtNum(len, 0)} mm`}{extra}</>);
 
   return (
     <div className="tables-view">
@@ -52,26 +59,27 @@ export default function TablesView({ derived }) {
           <table className="table">
             <thead>
               <tr>
-                <th>Nr.</th>
-                <th>Signal</th>
-                <th>Von</th>
-                <th>Pin</th>
-                <th>Nach</th>
-                <th>Pin</th>
-                <th>Farbe</th>
-                <th className="num">Querschnitt</th>
+                <th>{t('No.')}</th>
+                <th>{t('Signal')}</th>
+                <th>{t('From')}</th>
+                <th>{t('Pin')}</th>
+                <th>{t('To')}</th>
+                <th>{t('Pin')}</th>
+                <th>{t('Colour')}</th>
+                <th className="num">{t('Cross-section')}</th>
                 <th className="num">AWG</th>
-                <th>Typ</th>
-                <th className="num">Länge</th>
-                <th>Verlauf</th>
-                <th>Bemerkung</th>
+                <th>{t('Type')}</th>
+                <th>{t('Cable')}</th>
+                <th className="num">{t('Length')}</th>
+                <th>{t('Route')}</th>
+                <th>{t('Remark')}</th>
               </tr>
             </thead>
             <tbody>
               {wires.length === 0 && (
                 <tr>
-                  <td colSpan={13} className="muted">
-                    Noch keine Leitungen. Leitungen ziehst du im Schaltplan von Pin zu Pin.
+                  <td colSpan={14} className="muted">
+                    {t('No wires yet. Draw wires in the schematic from pin to pin.')}
                   </td>
                 </tr>
               )}
@@ -92,10 +100,8 @@ export default function TablesView({ derived }) {
                   <td className="num nowrap">{fmtCs(r.cs)}</td>
                   <td className="num">{r.awg}</td>
                   <td>{r.type}</td>
-                  <td className="num nowrap">
-                    {r.length === null ? <span style={{ color: 'var(--warn)' }}>–</span> : `${fmtNum(r.length, 0)} mm`}
-                    {r.overridden && <span className="muted small"> (fest)</span>}
-                  </td>
+                  <td>{r.cable}</td>
+                  <td className="num nowrap">{lenCell(r.length, r.overridden && <span className="muted small"> ({t('fixed')})</span>)}</td>
                   <td className="small muted">{r.route}</td>
                   <td className="small">{r.notes}</td>
                 </tr>
@@ -106,49 +112,66 @@ export default function TablesView({ derived }) {
       )}
 
       {tab === 'bom' && (
-        <div className="table-wrap">
-          <table className="table">
-            <thead>
-              <tr>
-                <th className="num">Pos.</th>
-                <th>Gruppe</th>
-                <th>Teilenummer</th>
-                <th>Hersteller</th>
-                <th>Beschreibung</th>
-                <th className="num">Menge</th>
-                <th>Einheit</th>
-                <th>Verwendung</th>
-                <th>Hinweis</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bom.length === 0 && (
+        <div className="col" style={{ gap: 8 }}>
+          {hasSubs && (
+            <div className="row">
+              <span className="small muted">{t('Sub-harnesses:')}</span>
+              <div className="seg-tabs">
+                <button className={!exploded ? 'on' : ''} onClick={() => setExploded(false)}>
+                  {t('as assembly')}
+                </button>
+                <button className={exploded ? 'on' : ''} onClick={() => setExploded(true)}>
+                  {t('exploded')}
+                </button>
+              </div>
+            </div>
+          )}
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
                 <tr>
-                  <td colSpan={9} className="muted">
-                    Stückliste ist leer.
-                  </td>
+                  <th className="num">{t('Pos.')}</th>
+                  <th>{t('Group')}</th>
+                  <th>{t('Part number')}</th>
+                  <th>{t('Manufacturer')}</th>
+                  <th>{t('Description')}</th>
+                  <th className="num">{t('Qty')}</th>
+                  <th>{t('Unit')}</th>
+                  <th>{t('Used by')}</th>
+                  <th>{t('Note')}</th>
                 </tr>
-              )}
-              {bom.map((r) => (
-                <tr key={r.pos}>
-                  <td className="num">{r.pos}</td>
-                  <td className="nowrap">{r.group}</td>
-                  <td className="mono nowrap">{r.partNumber || '—'}</td>
-                  <td className="nowrap">{r.manufacturer}</td>
-                  <td>
-                    {r.description}
-                    {r.unassigned && <span className="badge warn" style={{ marginLeft: 6 }}>ohne Teil</span>}
-                  </td>
-                  <td className="num nowrap">{r.unit === 'm' ? fmtNum(r.qty, 2) : r.qty}</td>
-                  <td>{r.unit}</td>
-                  <td className="small muted">{r.refs}</td>
-                  <td className="small" style={{ color: 'var(--warn)' }}>{r.notes}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="small muted" style={{ padding: 10 }}>
-            Leitungslängen inkl. der eingestellten Zugaben. Kontakte werden je belegter Kammer gezählt (Kontakt-Teilenummer aus der Bibliothek).
+              </thead>
+              <tbody>
+                {bom.length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="muted">
+                      {t('The bill of materials is empty.')}
+                    </td>
+                  </tr>
+                )}
+                {bom.map((r) => (
+                  <tr key={r.pos}>
+                    <td className="num">{r.pos}</td>
+                    <td className="nowrap">{r.group}</td>
+                    <td className="mono nowrap">{r.partNumber || '—'}</td>
+                    <td className="nowrap">{r.manufacturer}</td>
+                    <td>
+                      {r.description}
+                      {r.unassigned && <span className="badge warn" style={{ marginLeft: 6 }}>{t('no part')}</span>}
+                    </td>
+                    <td className="num nowrap">{r.isMetre ? fmtNum(r.qty, 2) : r.qty}</td>
+                    <td>{r.unit}</td>
+                    <td className="small muted">{r.refs}</td>
+                    <td className="small" style={{ color: 'var(--warn)' }}>
+                      {r.notes}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="small muted" style={{ padding: 10 }}>
+              {t('Wire lengths include the configured allowances. Contacts are counted per occupied cavity (contact part number from the library). Cores of multi-core cables are listed as cable.')}
+            </div>
           </div>
         </div>
       )}
@@ -158,22 +181,23 @@ export default function TablesView({ derived }) {
           <table className="table">
             <thead>
               <tr>
-                <th>Bauteil</th>
-                <th>Teil</th>
-                <th>Pin</th>
-                <th>Funktion</th>
-                <th>Leitung</th>
-                <th>Farbe</th>
-                <th className="num">Querschnitt</th>
-                <th>Ziel</th>
-                <th className="num">Länge</th>
+                <th>{t('Component')}</th>
+                <th>{t('Part')}</th>
+                <th>{t('Pin')}</th>
+                <th>{t('Function')}</th>
+                <th>{t('Wire')}</th>
+                <th>{t('Colour')}</th>
+                <th className="num">{t('Cross-section')}</th>
+                <th>{t('Destination')}</th>
+                <th className="num">{t('Length')}</th>
               </tr>
             </thead>
             <tbody>
               {pins.map((r, i) => {
                 const first = i === 0 || pins[i - 1].compId !== r.compId;
+                const rp = rowProps('wire', r.wireId);
                 return (
-                  <tr key={i} {...rowProps('wire', r.wireId)} style={{ ...(rowProps('wire', r.wireId).style || {}), borderTop: first ? '2px solid var(--border-2)' : undefined }}>
+                  <tr key={i} {...rp} style={{ ...(rp.style || {}), borderTop: first ? '2px solid var(--border-2)' : undefined }}>
                     <td className="nowrap">
                       {first && (
                         <>
@@ -204,26 +228,70 @@ export default function TablesView({ derived }) {
         </div>
       )}
 
+      {tab === 'cables' && (
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>{t('Designation')}</th>
+                <th>{t('Kind')}</th>
+                <th>{t('Type')}</th>
+                <th>{t('Part number')}</th>
+                <th className="num">{t('Cores')}</th>
+                <th>{t('Shield')}</th>
+                <th>{t('Wires')}</th>
+                <th className="num">{t('Lay length')}</th>
+                <th className="num">{t('Ø ≈')}</th>
+                <th className="num">{t('Length')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cables.length === 0 && (
+                <tr>
+                  <td colSpan={10} className="muted">
+                    {t('No cables yet. Select several wires in the schematic and choose "Combine into multi-core cable" or "Twist" from the context menu.')}
+                  </td>
+                </tr>
+              )}
+              {cables.map((r) => (
+                <tr key={r.cableId} {...rowProps('cable', r.cableId)}>
+                  <td className="nowrap">{r.label}</td>
+                  <td>{r.kind}</td>
+                  <td>{r.type}</td>
+                  <td className="mono">{r.part}</td>
+                  <td className="num">{r.cores}</td>
+                  <td>{r.shield ? t('yes') : ''}</td>
+                  <td className="small">{r.members}</td>
+                  <td className="num">{r.layLength ? `${fmtNum(r.layLength, 0)} mm` : ''}</td>
+                  <td className="num">{r.outerDiameter ? `${fmtNum(r.outerDiameter, 1)} mm` : ''}</td>
+                  <td className="num nowrap">{lenCell(r.length)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {tab === 'segments' && (
         <div className="table-wrap">
           <table className="table">
             <thead>
               <tr>
-                <th>Von</th>
-                <th>Nach</th>
-                <th>Bezeichnung</th>
-                <th className="num">Länge</th>
-                <th className="num">Leitungen</th>
-                <th className="num">Bündel-Ø ≈</th>
-                <th>Ummantelung</th>
-                <th>Leitungen</th>
+                <th>{t('From')}</th>
+                <th>{t('To')}</th>
+                <th>{t('Designation')}</th>
+                <th className="num">{t('Length')}</th>
+                <th className="num">{t('Wires')}</th>
+                <th className="num">{t('Bundle Ø ≈')}</th>
+                <th>{t('Covering')}</th>
+                <th>{t('Wires')}</th>
               </tr>
             </thead>
             <tbody>
               {segs.length === 0 && (
                 <tr>
                   <td colSpan={8} className="muted">
-                    Noch keine Segmente. Segmente zeichnest du in der Layout-Ansicht.
+                    {t('No segments yet. Draw segments in the layout view.')}
                   </td>
                 </tr>
               )}
@@ -246,7 +314,7 @@ export default function TablesView({ derived }) {
 
       {tab === 'checks' && (
         <div className="col" style={{ gap: 6 }}>
-          {derived.warnings.length === 0 && <div className="info-box">Keine Auffälligkeiten gefunden.</div>}
+          {derived.warnings.length === 0 && <div className="info-box">{t('No issues found.')}</div>}
           {derived.warnings
             .slice()
             .sort((a, b) => (a.level === b.level ? 0 : a.level === 'warn' ? -1 : 1))

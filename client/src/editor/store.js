@@ -9,19 +9,20 @@ export const useEditor = create((set, get) => ({
   permission: 'read',
   version: 0,
   view: 'schematic',
-  selection: [], // [{ kind, id }]
-  hover: null, // { wireIds: string[] }
+  selection: [], // [{ kind, id }] kinds: component | wire | cable | segment | node | note
+  hover: null, // { key, wireIds: string[] }
   past: [],
   future: [],
   saveState: 'saved', // saved | dirty | saving | error | conflict
   saveError: '',
-  docRevision: 0, // zählt jede Änderung für Autosave
+  docRevision: 0, // counts every change (autosave)
   viewports: {
     schematic: { x: 60, y: 60, k: 1 },
     layout: { x: 60, y: 60, k: 1 },
   },
   layoutTool: 'select',
   wireDefaults: null,
+  embeds: new Map(), // harnessId -> { name, data, missing } of embedded sub-harnesses
 
   load(harness, permission, breadcrumb) {
     set({
@@ -46,7 +47,7 @@ export const useEditor = create((set, get) => ({
     });
   },
 
-  // Änderung mit Rückgängig-Eintrag; fn bekommt eine tiefe Kopie
+  // Change with an undo entry; fn receives a deep copy and may return false to abort
   update(fn, { history = true } = {}) {
     const { doc, past, permission } = get();
     if (!doc || permission === 'read') return;
@@ -62,7 +63,7 @@ export const useEditor = create((set, get) => ({
     });
   },
 
-  // Schnelle Änderung ohne tiefe Kopie (für Ziehen), fn gibt neues Dokument zurück
+  // Fast replacement without deep copy (used while dragging)
   replaceDoc(nextDoc) {
     if (get().permission === 'read') return;
     set({ doc: nextDoc, saveState: 'dirty', docRevision: get().docRevision + 1 });
@@ -106,8 +107,7 @@ export const useEditor = create((set, get) => ({
   },
   select(items, additive = false) {
     if (!additive) return set({ selection: items });
-    const cur = get().selection;
-    const out = [...cur];
+    const out = [...get().selection];
     for (const it of items) {
       const i = out.findIndex((s) => s.kind === it.kind && s.id === it.id);
       if (i >= 0) out.splice(i, 1);
@@ -142,12 +142,16 @@ export const useEditor = create((set, get) => ({
   setWireDefaults(d) {
     set({ wireDefaults: d });
   },
+  setEmbeds(embeds) {
+    set({ embeds });
+  },
 }));
 
 function filterSelection(sel, doc) {
   const ids = new Set([
     ...doc.components.map((c) => c.id),
     ...doc.wires.map((w) => w.id),
+    ...(doc.cables || []).map((k) => k.id),
     ...doc.segments.map((s) => s.id),
     ...doc.nodes.map((n) => n.id),
     ...doc.notes.map((n) => n.id),

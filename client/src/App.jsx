@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Navigate, NavLink, Route, Routes, useNavigate, Link } from 'react-router-dom';
 import { api } from './api.js';
+import { t, setLang } from './i18n/index.js';
 import { LoginPage, SetupPage } from './pages/Login.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Library from './pages/Library.jsx';
@@ -11,6 +12,7 @@ import { Dropdown, MenuButton } from './components/ui.jsx';
 
 const AuthCtx = createContext(null);
 export const useAuth = () => useContext(AuthCtx);
+export const APP_NAME = 'CableDesigner2000';
 
 export default function App() {
   const [state, setState] = useState({ loading: true, user: null, needsSetup: false });
@@ -19,12 +21,13 @@ export default function App() {
     try {
       const { user } = await api.get('/auth/me');
       setState({ loading: false, user, needsSetup: false });
+      if (user.language) setLang(user.language);
     } catch {
       let needsSetup = false;
       try {
         needsSetup = (await api.get('/auth/setup')).needsSetup;
       } catch {
-        /* ignorieren */
+        /* ignore */
       }
       setState({ loading: false, user: null, needsSetup });
     }
@@ -34,7 +37,7 @@ export default function App() {
     refresh();
   }, [refresh]);
 
-  if (state.loading) return <div className="auth-wrap muted">Lade …</div>;
+  if (state.loading) return <div className="auth-wrap muted">{t('Loading …')}</div>;
 
   if (!state.user) {
     return (
@@ -67,22 +70,22 @@ function Shell() {
       <header className="topbar">
         <Link to="/" className="brand">
           <img src="/favicon.svg" alt="" />
-          Harness Designer
+          {APP_NAME}
         </Link>
         <nav className="nav">
           <NavLink to="/" end>
-            Projekte
+            {t('Projects')}
           </NavLink>
-          <NavLink to="/library">Bibliothek</NavLink>
-          {user.isAdmin && <NavLink to="/admin">Verwaltung</NavLink>}
+          <NavLink to="/library">{t('Library')}</NavLink>
+          {user.isAdmin && <NavLink to="/admin">{t('Administration')}</NavLink>}
         </nav>
         <div className="spacer" />
         <Dropdown label={<>👤 {user.displayName}</>} buttonClass="ghost">
           <MenuButton icon="⚙" onClick={() => navigate('/account')}>
-            Mein Konto
+            {t('My account')}
           </MenuButton>
           <MenuButton icon="⎋" onClick={logout}>
-            Abmelden
+            {t('Sign out')}
           </MenuButton>
         </Dropdown>
       </header>

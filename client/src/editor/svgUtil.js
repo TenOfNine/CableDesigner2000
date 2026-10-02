@@ -1,4 +1,4 @@
-// Kleine Hilfen für SVG-Texte
+// Small helpers for SVG text
 
 export function textWidth(text, fontSize = 12, bold = false) {
   return String(text || '').length * fontSize * (bold ? 0.6 : 0.56);

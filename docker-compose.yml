@@ -1,20 +1,22 @@
 services:
-  harness-designer:
+  cabledesigner2000:
     build: .
-    image: harness-designer:latest
-    container_name: harness-designer
+    image: cabledesigner2000:latest
+    container_name: cabledesigner2000
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      # true setzen, sobald die Oberfläche nur noch per HTTPS (z. B. über einen Reverse Proxy) erreichbar ist
+      # set to true once the UI is only reachable via HTTPS (e.g. behind a reverse proxy)
       COOKIE_SECURE: "false"
-      # hinter einem Reverse Proxy: Anzahl der Proxy-Stufen, meist 1 (für korrekte Client-IP bei der Login-Drosselung)
+      # behind a reverse proxy: number of proxy hops, usually 1 (correct client IP for login throttling)
       TRUST_PROXY: ""
-      # Gültigkeit einer Anmeldung in Tagen
+      # validity of a login session in days
       SESSION_DAYS: "30"
     volumes:
-      - harness-data:/data
+      - cabledesigner-data:/data
 
 volumes:
-  harness-data:
+  cabledesigner-data:
+    # fixed name, independent of the folder the compose file lives in
+    name: cabledesigner2000-data

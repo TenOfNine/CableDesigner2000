@@ -5,6 +5,7 @@ import { useEditor, isSelected } from './store.js';
 import { DARK } from './theme.js';
 import { schBox, schAnchor, snap, SCH } from './geometry.js';
 import { connectPins } from './actions.js';
+import { t } from '../i18n/index.js';
 
 export default function SchematicView({ derived, onContextMenu, fitSignal }) {
   const canvasRef = useRef(null);
@@ -16,7 +17,7 @@ export default function SchematicView({ derived, onContextMenu, fitSignal }) {
   const [box, setBox] = useState(null);
   const fitted = useRef(false);
 
-  const fit = () => canvasRef.current?.fit(schematicBounds(useEditor.getState().doc));
+  const fit = () => canvasRef.current?.fit(schematicBounds(useEditor.getState().doc, derived));
   useEffect(() => {
     if (!fitted.current && doc.components.length) {
       fitted.current = true;
@@ -53,7 +54,10 @@ export default function SchematicView({ derived, onContextMenu, fitSignal }) {
     const kind = kindEl.dataset.kind;
     const id = kindEl.dataset.id;
     if (kind === 'component' || kind === 'note') startMove(e, kind, id, world);
-    else if (kind === 'wire') {
+    else if (kind === 'cable') {
+      if (e.shiftKey) st.select([{ kind, id }], true);
+      else st.select([{ kind, id }]);
+    } else if (kind === 'wire') {
       const sel = st.selection;
       const already = sel.length === 1 && sel[0].id === id;
       if (e.shiftKey) st.select([{ kind, id }], true);
@@ -126,7 +130,7 @@ export default function SchematicView({ derived, onContextMenu, fitSignal }) {
         setPreview(null);
         const target = document.elementFromPoint(ev.clientX, ev.clientY);
         const to = resolvePinTarget(target, toWorldEv(ev));
-        if (to && to.p !== pinId) connectPins({ c: compId, p: pinId }, to);
+        if (to && to.p !== pinId) connectPins({ c: compId, p: pinId, fn: comp.pins[idx]?.fn }, { ...to, fn: derived.pins.get(to.p)?.pin.fn });
       },
     });
   }
@@ -137,8 +141,16 @@ export default function SchematicView({ derived, onContextMenu, fitSignal }) {
     if (pe) return { c: pe.dataset.comp, p: pe.dataset.pin };
     const ce = target.closest('[data-kind="component"]');
     if (!ce) return null;
-    const c = derived.comps.get(ce.dataset.id);
+    let c = derived.comps.get(ce.dataset.id);
     if (!c) return null;
+    if (c.type === 'subharness') {
+      // dropped onto an interface connector inside the sub-harness block
+      c = derived.subs.get(c.id)?.virtuals.find((v) => {
+        const b = schBox(v);
+        return w.x >= b.x && w.x <= b.x + b.w && w.y >= b.y && w.y <= b.y + b.h;
+      });
+      if (!c) return null;
+    }
     if (c.pins.length === 1) return { c: c.id, p: c.pins[0].id };
     if (c.type === 'connector') {
       const b = schBox(c);
@@ -187,7 +199,7 @@ export default function SchematicView({ derived, onContextMenu, fitSignal }) {
         const d = useEditor.getState().doc;
         const items = [];
         for (const c of d.components) {
-          const b = schBox(c);
+          const b = schBox(c, derived);
           if (b.x < r.x2 && b.x + b.w > r.x && b.y < r.y2 && b.y + b.h > r.y) items.push({ kind: 'component', id: c.id });
         }
         for (const n of d.notes) {
@@ -217,7 +229,7 @@ export default function SchematicView({ derived, onContextMenu, fitSignal }) {
     if (readOnly) return;
     const kindEl = e.target.closest?.('[data-kind="wire"]');
     if (kindEl) {
-      // Verlauf zurücksetzen
+      // reset the wire path
       useEditor.getState().update((d) => {
         const w = d.wires.find((x) => x.id === kindEl.dataset.id);
         if (!w || w.schMid === undefined) return false;
@@ -254,15 +266,15 @@ export default function SchematicView({ derived, onContextMenu, fitSignal }) {
         )}
       </Canvas>
       <div className="canvas-hud">
-        <button onClick={() => canvasRef.current.zoomBy(1 / 1.2)} title="Verkleinern">−</button>
-        <button onClick={() => canvasRef.current.zoomBy(1.2)} title="Vergrößern">＋</button>
-        <button onClick={fit} title="Alles anzeigen (F)">Einpassen</button>
+        <button onClick={() => canvasRef.current.zoomBy(1 / 1.2)} title={t('Zoom out')}>−</button>
+        <button onClick={() => canvasRef.current.zoomBy(1.2)} title={t('Zoom in')}>＋</button>
+        <button onClick={fit} title={t('Show everything (F)')}>{t('Fit')}</button>
       </div>
       {readOnly ? null : doc.components.length === 0 ? (
-        <div className="canvas-hint">Rechtsklick auf die Fläche oder die Leiste links, um Steckverbinder, Terminals und Spleiße hinzuzufügen.</div>
+        <div className="canvas-hint">{t('Right-click the canvas or use the bar on the left to add connectors, terminals and splices.')}</div>
       ) : (
         <div className="canvas-hint">
-          Pin ziehen = Leitung · Hintergrund ziehen = verschieben · Shift+Ziehen = Auswahlrahmen · Mausrad = Zoom · Doppelklick auf Leitung = Verlauf zurücksetzen
+          {t('Drag a pin = wire · drag background = pan · Shift+drag = selection box · wheel = zoom · double-click a wire = reset path · select several wires + right-click = cable/twist')}
         </div>
       )}
     </div>

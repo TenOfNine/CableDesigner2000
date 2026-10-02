@@ -251,3 +251,9 @@ number, description "Generic: …", note to set the cavity count).
   - The CSP (`script-src 'self'`) blocks Playwright's `wait_for_function` with expression strings – pass a
     function.
   - `window.print` was stubbed in tests and the PDF created with `page.pdf(prefer_css_page_size=True)`.
+
+### After the v0.2 merge
+
+- 2026-10-02: README screenshots added in `docs/screenshots/` (schematic, layout, library). They were taken with
+  Playwright at 1440 × 860 in the English UI, using the example harness (`examples/…`) in a project
+  "Motorcycle › Engine". Retake them when the UI changes noticeably. `docs/` is excluded from the Docker image.

@@ -5,6 +5,12 @@ Self-hosted (Docker), multiple user accounts, projects with sub-projects, sharin
 schematic and layout views with automatic wire-length calculation, and export as print/PDF, image and Excel.
 The user interface is available in German and English (switchable per account).
 
+![Schematic view with the example harness and the properties of a selected connector](docs/screenshots/schematic.png)
+
+| Layout with segment lengths, mating faces and wire table | Part library with researched connector systems |
+|---|---|
+| ![Layout view](docs/screenshots/layout.png) | ![Part library](docs/screenshots/library.png) |
+
 ---
 
 ## Features (version 0.2)

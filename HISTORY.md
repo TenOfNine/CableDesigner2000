@@ -261,3 +261,26 @@ number, description "Generic: …", note to set the cavity count).
   cavities in the wire colours red/orange/green/blue on a dark tile (best legibility at 16 px). It replaces the
   former four diagonal wire stripes in `client/public/favicon.svg`, which is also used as the logo in the header,
   editor and login page. README screenshots were retaken with the new icon.
+
+## Portainer deployment (2026-10-07)
+
+- **Request (PH):** make the repository deployable with Portainer.
+- **Decisions (answers by PH):**
+  - ready-made image built by GitHub Actions and pulled by Portainer (not built by Portainer – building in Git
+    stacks is "not fully implemented" according to Portainer);
+  - environment: Docker standalone (no Swarm);
+  - updates: manual ("Pull and redeploy" with "Re-pull image"), no GitOps polling/webhook.
+- **Implementation:**
+  - `.github/workflows/docker-image.yml` builds linux/amd64 + linux/arm64 and pushes to
+    `ghcr.io/tenofnine/cabledesigner2000` (tags `latest` + `sha-…` from `main`, `x.y.z` / `x.y` from tags `v*`;
+    pull requests only build).
+  - `docker-compose.yml` now uses that image (`IMAGE_TAG`, `HTTP_PORT`, `COOKIE_SECURE`, `TRUST_PROXY`,
+    `SESSION_DAYS` as variables with defaults, documented in `.env.example`); local builds via the override
+    `docker-compose.build.yml`. The volume name `cabledesigner2000-data` is unchanged.
+- **One-time step on GitHub:** a package pushed to ghcr.io is *private* by default, even from a public repository
+  (it inherits access permissions but not visibility). After the first workflow run PH has to set it to public
+  (GitHub → Packages → cabledesigner2000 → Package settings → Change visibility → Public), otherwise Portainer
+  needs registry credentials.
+- **Environment notes:** in this sandbox `dockerd` can be started, but Docker Hub is blocked by the egress policy
+  (403), so the image could not be built locally; the build is verified by the GitHub Actions run.
+  Deleting remote branches via `git push --delete` is also refused (403) – PH deletes them in the GitHub UI.

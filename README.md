@@ -96,29 +96,65 @@ replaces the calculation.
 
 ## Installation with Docker
 
-Requirement: Docker with the Compose plugin.
+A ready-made image is published to the GitHub Container Registry by GitHub Actions on every push to `main`
+(`ghcr.io/tenofnine/cabledesigner2000`, for linux/amd64 and linux/arm64):
+
+| Tag | Content |
+|-----|---------|
+| `latest` | newest state of `main` |
+| `0.2.0`, `0.2` | releases (Git tags `v0.2.0` …) |
+| `sha-abc1234` | a specific commit |
+
+All data (users, projects, harnesses, library incl. images) is stored in one SQLite file in the Docker volume
+`cabledesigner2000-data` (`/data/cabledesigner.db` inside the container). On first access of the UI the
+**initial setup** for the administrator account appears.
+
+### Portainer
+
+1. **Stacks → Add stack**, give it a name (e.g. `cabledesigner2000`) and choose **Repository**.
+2. **Repository URL:** `https://github.com/TenOfNine/CableDesigner2000`, **Repository reference:** `refs/heads/main`,
+   **Compose path:** `docker-compose.yml` (no authentication needed – the repository is public).
+3. Optional: set **Environment variables** (see the table below, or load `.env.example` as a template).
+4. **Deploy the stack.** The UI is then available at `http://<server>:8080` (or the port set in `HTTP_PORT`).
+
+Instead of a repository stack, the content of `docker-compose.yml` can also be pasted into the **Web editor**.
+
+**Updating:** open the stack and click **Pull and redeploy** with **Re-pull image** enabled
+(web-editor stacks: **Update the stack** with re-pulling the image). The database schema and the built-in library are
+upgraded automatically on start; library parts you edited yourself are not overwritten.
+To stay on a fixed version, set `IMAGE_TAG` (e.g. `0.2.0`).
+
+### Docker Compose
 
 ```bash
 git clone https://github.com/TenOfNine/CableDesigner2000.git
 cd CableDesigner2000
-docker compose up -d --build
+cp .env.example .env        # optional: adjust the settings
+docker compose up -d
 ```
 
-The UI is then available at `http://<server>:8080`. On first access the **initial setup** for the administrator
-account appears.
+Update with `git pull && docker compose pull && docker compose up -d`.
 
-All data (users, projects, harnesses, library incl. images) is stored in one SQLite file in the Docker volume
-`cabledesigner2000-data` (`/data/cabledesigner.db` inside the container).
+To build the image from the local source instead of pulling it:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+```
 
 ### Settings (environment variables)
 
-| Variable        | Default | Meaning |
-|-----------------|---------|---------|
-| `PORT`          | `8080`  | Port inside the container |
-| `DATA_DIR`      | `/data` | Location of the database |
-| `COOKIE_SECURE` | `false` | Set to `true` once the UI is only accessed via HTTPS |
-| `TRUST_PROXY`   | empty   | Behind a reverse proxy e.g. `1` (correct client IP for login throttling) |
-| `SESSION_DAYS`  | `30`    | Validity of a login in days (extended while in use) |
+Variables used by `docker-compose.yml` (Portainer: *Environment variables*; Docker Compose: `.env`):
+
+| Variable        | Default  | Meaning |
+|-----------------|----------|---------|
+| `IMAGE_TAG`     | `latest` | Image tag to run (`latest`, a release such as `0.2.0`, or `sha-…`) |
+| `HTTP_PORT`     | `8080`   | Port on the Docker host |
+| `COOKIE_SECURE` | `false`  | Set to `true` once the UI is only accessed via HTTPS |
+| `TRUST_PROXY`   | empty    | Behind a reverse proxy e.g. `1` (correct client IP for login throttling) |
+| `SESSION_DAYS`  | `30`     | Validity of a login in days (extended while in use) |
+
+Inside the container the server also reads `PORT` (default `8080`) and `DATA_DIR` (default `/data`); there is
+normally no reason to change them.
 
 ### Behind a reverse proxy (recommended for access from outside)
 
@@ -134,7 +170,7 @@ location / {
 }
 ```
 
-Then set `COOKIE_SECURE: "true"` and `TRUST_PROXY: "1"` in `docker-compose.yml`.
+Then set `COOKIE_SECURE=true` and `TRUST_PROXY=1`.
 
 ### Backup and restore
 
@@ -148,11 +184,6 @@ docker run --rm -v cabledesigner2000-data:/data -v "$PWD":/backup alpine \
 docker compose start
 ```
 
-### Updating
-
-Pull the new version and run `docker compose up -d --build` again. The database schema and the built-in library are
-upgraded automatically on start (library parts you edited yourself are not overwritten).
-
 ### Upgrading from 0.1 ("Harness Designer")
 
 Version 0.1 used the volume `<folder>_harness-data` and the file `harness.db`. The file is renamed to
@@ -163,10 +194,11 @@ docker compose -p <old-folder-name> down            # stop the old container (da
 docker volume create cabledesigner2000-data
 docker run --rm -v <old-folder-name>_harness-data:/from -v cabledesigner2000-data:/to alpine \
   sh -c "cp -a /from/. /to/"
-docker compose up -d --build
+docker compose up -d
 ```
 
-(`docker volume ls` shows the exact name of the old volume.)
+(`docker volume ls` shows the exact name of the old volume. With Portainer, stop the old stack first and run the
+copy command on the Docker host.)
 
 ---
 

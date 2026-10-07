@@ -77,8 +77,16 @@ node scripts/make-example.mjs    # regenerate the example harness after library/
 
 ## Docker
 
-- `docker compose up -d --build`; data lives in the named volume `cabledesigner2000-data` (`/data`).
-- The image compiles better-sqlite3 (`ENV npm_config_nodedir=/usr/local` in the build stage).
+- PH deploys with **Portainer** (Docker standalone) as a repository stack using `docker-compose.yml`; keep that file
+  deployable without a build step (image from ghcr.io, all settings as `${VAR:-default}` variables documented in
+  `.env.example` and the README).
+- The image is built by `.github/workflows/docker-image.yml` (linux/amd64 + linux/arm64) and pushed to
+  `ghcr.io/tenofnine/cabledesigner2000` on pushes to `main` (`latest`, `sha-…`) and on tags `v*` (`x.y.z`, `x.y`).
+  Release a version by pushing a tag such as `v0.3.0` – only when PH asks for it.
+- Local build: `docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build`.
+- Data lives in the named volume `cabledesigner2000-data` (`/data`); never rename it (existing installations).
+- The image compiles better-sqlite3 if no prebuilt binary is available (`ENV npm_config_nodedir=/usr/local` in the
+  build stage).
 
 ## History
 

@@ -1,22 +1,25 @@
+# CableDesigner2000 – ready for Portainer ("Stacks → Add stack → Repository", compose path docker-compose.yml)
+# and for plain "docker compose up -d". It uses the image built by GitHub Actions (ghcr.io).
+# To build the image locally instead: docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+# All settings can be changed via environment variables (Portainer: "Environment variables"; see .env.example).
 services:
   cabledesigner2000:
-    build: .
-    image: cabledesigner2000:latest
+    image: ghcr.io/tenofnine/cabledesigner2000:${IMAGE_TAG:-latest}
     container_name: cabledesigner2000
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "${HTTP_PORT:-8080}:8080"
     environment:
       # set to true once the UI is only reachable via HTTPS (e.g. behind a reverse proxy)
-      COOKIE_SECURE: "false"
+      COOKIE_SECURE: "${COOKIE_SECURE:-false}"
       # behind a reverse proxy: number of proxy hops, usually 1 (correct client IP for login throttling)
-      TRUST_PROXY: ""
+      TRUST_PROXY: "${TRUST_PROXY:-}"
       # validity of a login session in days
-      SESSION_DAYS: "30"
+      SESSION_DAYS: "${SESSION_DAYS:-30}"
     volumes:
       - cabledesigner-data:/data
 
 volumes:
   cabledesigner-data:
-    # fixed name, independent of the folder the compose file lives in
+    # fixed name, independent of the stack/folder name
     name: cabledesigner2000-data

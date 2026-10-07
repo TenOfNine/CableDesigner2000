@@ -5,3 +5,7 @@ data
 *.log
 scripts
 docs
+.github
+.env
+.env.example
+docker-compose*.yml
